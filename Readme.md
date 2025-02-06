@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Daria Egarmina](https://up.htmlacademy.ru/ecmascript-individual/2/user/2156249).
-* Наставник: `Неизвестно`.
+* Наставник: ``.
 
 ---
 
