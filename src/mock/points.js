@@ -4,8 +4,8 @@ const mockPoints = [
   {
     id: '1',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2019-07-10T22:55:56.845Z',
-    dateTo: '2019-07-11T11:22:13.375Z',
+    dateFrom: '2024-02-14T16:30:11.845Z',
+    dateTo: '2024-02-14T17:00:13.375Z',
     destination: 'Moscow',
     isFavorite: true,
     offers: [
@@ -18,8 +18,8 @@ const mockPoints = [
   {
     id: '2',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2019-08-10T22:55:56.845Z',
-    dateTo: '2019-08-11T11:22:13.375Z',
+    dateFrom: '2024-02-15T16:30:11.845Z',
+    dateTo: '2024-02-16T17:00:13.375Z',
     destination: 'Vladivostok',
     isFavorite: false,
     offers: [
@@ -32,8 +32,8 @@ const mockPoints = [
   {
     id: '3',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2019-06-10T22:55:56.845Z',
-    dateTo: '2019-06-11T11:22:13.375Z',
+    dateFrom: '2024-02-27T16:30:11.845Z',
+    dateTo: '2024-02-28T17:00:13.375Z',
     destination: 'Novosibirsk',
     isFavorite: false,
     offers: [],
@@ -41,8 +41,8 @@ const mockPoints = [
   }
 ];
 
-function getRandomPoints() {
+function getRandomPoint() {
   return getRandomArrayElement(mockPoints);
 }
 
-export { getRandomPoints };
+export { getRandomPoint };

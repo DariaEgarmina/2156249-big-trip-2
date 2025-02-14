@@ -4,9 +4,17 @@ import TripEventsPresenter from './presenter/trip-events-presenter.js';
 
 import { render } from './render.js';
 
+import PointsModel from './model/points-model.js';
+
 const filtersContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
-const tripEventsPresenter = new TripEventsPresenter({ tripEventsContainer: tripEventsContainer });
+
+const pointsModel = new PointsModel();
+
+const tripEventsPresenter = new TripEventsPresenter({
+  tripEventsContainer: tripEventsContainer,
+  pointsModel: pointsModel,
+}); //в современном JavaScript, если имя свойства совпадает с именем переменной, можно опустить второе имя (сокращённая запись)
 
 render(new FiltersView(), filtersContainer);
 render(new SortView(), tripEventsContainer);
