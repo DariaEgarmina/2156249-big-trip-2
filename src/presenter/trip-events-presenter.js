@@ -17,7 +17,15 @@ export default class TripEventsPresenter {
     this.tripPoints = [...this.pointsModel.getPoints()];
 
     render(this.tripEventsListComponent, this.tripEventsContainer);
-    render(new EventEditFormView(), this.tripEventsListComponent.getElement());
+
+
+    render(new EventEditFormView({
+      event: this.tripPoints[0],
+      destination: this.pointsModel.getDestinationById(this.tripPoints[0].id),
+    }),
+    this.tripEventsListComponent.getElement());
+
+
     render(new EventCreateFormView(), this.tripEventsListComponent.getElement());
 
     for (let i = 0; i < this.tripPoints.length; i++) {

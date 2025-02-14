@@ -3,7 +3,7 @@ import { getRandomArrayElement, getRandomNumber } from '../util.js';
 
 const mockDestinations = [
   {
-    id: '111',
+    id: '1',
     description: getRandomArrayElement(descriptionArray),
     name: 'Moscow',
     pictures: [
@@ -66,7 +66,7 @@ const mockDestinations = [
     pictures: []
   },
   {
-    id: '115',
+    id: '3',
     description: getRandomArrayElement(descriptionArray),
     name: 'Novosibirsk',
     pictures: [
@@ -85,7 +85,7 @@ const mockDestinations = [
     ]
   },
   {
-    id: '116',
+    id: '2',
     description: getRandomArrayElement(descriptionArray),
     name: 'Vladivostok',
     pictures: [

@@ -1,6 +1,9 @@
 import { createElement } from '../render.js';
 
-function createEventEditFormTemplate() {
+function createEventEditFormTemplate(event, destination) {
+  const {type, basePrice} = event;
+  const { name } = destination;
+
   return (
     `<li class="trip-events__item">
         <form class="event event--edit" action="#" method="post">
@@ -8,7 +11,7 @@ function createEventEditFormTemplate() {
             <div class="event__type-wrapper">
               <label class="event__type  event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
-                <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
               </label>
               <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -66,9 +69,9 @@ function createEventEditFormTemplate() {
 
             <div class="event__field-group  event__field-group--destination">
               <label class="event__label  event__type-output" for="event-destination-1">
-                Flight
+              ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Chamonix" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
               <datalist id="destination-list-1">
                 <option value="Amsterdam"></option>
                 <option value="Geneva"></option>
@@ -89,7 +92,7 @@ function createEventEditFormTemplate() {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
+              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -161,8 +164,13 @@ function createEventEditFormTemplate() {
 }
 
 export default class EventEditFormView {
+  constructor({ event, destination }) {
+    this.event = event;
+    this.destination = destination;
+  }
+
   getTemplate() {
-    return createEventEditFormTemplate();
+    return createEventEditFormTemplate(this.event, this.destination);
   }
 
   getElement() {
