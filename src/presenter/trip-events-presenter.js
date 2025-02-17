@@ -22,14 +22,14 @@ export default class TripEventsPresenter {
     render(new EventEditFormView({
       event: this.tripPoints[0],
       destination: this.pointsModel.getDestinationById(this.tripPoints[0].id),
-    }),
-    this.tripEventsListComponent.getElement());
-
+      offer: this.pointsModel.getOfferByType(this.tripPoints[0].type), //<-это объект с двумя ключами type и offers
+      checkedOffers: this.pointsModel.getOfferById(this.tripPoints[0].type, this.tripPoints[0].offers), // <-это массив из объектов
+    }), this.tripEventsListComponent.getElement());
 
     render(new EventCreateFormView(), this.tripEventsListComponent.getElement());
 
     for (let i = 0; i < this.tripPoints.length; i++) {
-      render(new EventView({event: this.tripPoints[i]}), this.tripEventsListComponent.getElement());
+      render(new EventView({ event: this.tripPoints[i] }), this.tripEventsListComponent.getElement());
     }
   }
 }

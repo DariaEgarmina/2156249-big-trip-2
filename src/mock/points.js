@@ -37,7 +37,7 @@ const mockPoints = [
     destination: 'Novosibirsk',
     isFavorite: false,
     offers: [],
-    type: 'Sightseeing'
+    type: 'sightseeing'
   }
 ];
 
