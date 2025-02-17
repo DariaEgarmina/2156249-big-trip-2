@@ -171,3 +171,5 @@ export default class EventEditFormView {
     this.element = null;
   }
 }
+
+export { createOfferListTemplate };

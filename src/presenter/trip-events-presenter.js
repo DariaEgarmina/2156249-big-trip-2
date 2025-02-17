@@ -26,7 +26,12 @@ export default class TripEventsPresenter {
       checkedOffers: this.pointsModel.getOfferById(this.tripPoints[0].type, this.tripPoints[0].offers), // <-это массив из объектов
     }), this.tripEventsListComponent.getElement());
 
-    render(new EventCreateFormView(), this.tripEventsListComponent.getElement());
+    render(new EventCreateFormView({
+      event: this.tripPoints[1],
+      destination: this.pointsModel.getDestinationById(this.tripPoints[1].id),
+      offer: this.pointsModel.getOfferByType(this.tripPoints[1].type),
+      checkedOffers: this.pointsModel.getOfferById(this.tripPoints[1].type, this.tripPoints[1].offers),
+    }), this.tripEventsListComponent.getElement());
 
     for (let i = 0; i < this.tripPoints.length; i++) {
       render(new EventView({ event: this.tripPoints[i] }), this.tripEventsListComponent.getElement());

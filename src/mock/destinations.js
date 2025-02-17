@@ -22,7 +22,7 @@ const mockDestinations = [
     ]
   },
   {
-    id: '112',
+    id: '6',
     description: getRandomArrayElement(descriptionArray),
     name: 'Saint Petersburg',
     pictures: [
@@ -45,7 +45,7 @@ const mockDestinations = [
     ]
   },
   {
-    id: '113',
+    id: '5',
     description: getRandomArrayElement(descriptionArray),
     name: 'Sochi',
     pictures: [
@@ -60,7 +60,7 @@ const mockDestinations = [
     ]
   },
   {
-    id: '114',
+    id: '4',
     description: getRandomArrayElement(descriptionArray),
     name: 'Voronezh',
     pictures: []
