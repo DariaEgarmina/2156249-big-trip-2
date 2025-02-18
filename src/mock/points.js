@@ -4,8 +4,8 @@ const mockPoints = [
   {
     id: '1',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2024-02-14T16:30:11.845Z',
-    dateTo: '2024-02-14T17:00:13.375Z',
+    dateFrom: '2024-01-14T16:30:17.845Z',
+    dateTo: '2024-01-14T17:00:34.375Z',
     destination: 'Moscow',
     isFavorite: true,
     offers: [
@@ -18,8 +18,8 @@ const mockPoints = [
   {
     id: '2',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2024-02-15T16:30:11.845Z',
-    dateTo: '2024-02-16T17:00:13.375Z',
+    dateFrom: '2024-02-15T11:30:00.845Z',
+    dateTo: '2024-02-16T13:00:03.375Z',
     destination: 'Vladivostok',
     isFavorite: false,
     offers: [
@@ -32,8 +32,8 @@ const mockPoints = [
   {
     id: '3',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2024-02-27T16:30:11.845Z',
-    dateTo: '2024-02-28T17:00:13.375Z',
+    dateFrom: '2024-03-27T18:15:36.845Z',
+    dateTo: '2024-03-28T21:00:47.375Z',
     destination: 'Novosibirsk',
     isFavorite: false,
     offers: [],
