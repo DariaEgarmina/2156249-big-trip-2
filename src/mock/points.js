@@ -18,8 +18,8 @@ const mockPoints = [
   {
     id: '2',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2024-02-15T11:30:00.845Z',
-    dateTo: '2024-02-16T13:00:03.375Z',
+    dateFrom: '2024-01-01T00:30:00.845Z',
+    dateTo: '2024-01-02T03:00:00.375Z',
     destination: 'Vladivostok',
     isFavorite: false,
     offers: [

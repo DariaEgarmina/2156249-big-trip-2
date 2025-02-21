@@ -34,7 +34,10 @@ export default class TripEventsPresenter {
     }), this.tripEventsListComponent.getElement());
 
     for (let i = 0; i < this.tripPoints.length; i++) {
-      render(new EventView({ event: this.tripPoints[i] }), this.tripEventsListComponent.getElement());
+      render(new EventView({
+        event: this.tripPoints[i],
+        checkedOffers: this.pointsModel.getOfferById(this.tripPoints[i].type, this.tripPoints[i].offers),
+      }), this.tripEventsListComponent.getElement());
     }
   }
 }
