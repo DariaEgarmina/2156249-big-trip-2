@@ -1,48 +1,40 @@
-import { TimeCalc } from './const';
+import { DateFormat } from './const';
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
+const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 
-function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
+const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-function humanizeEventDate(date, format) {
-  return date ? dayjs(date).format(format) : '';
-}
+const humanizeEventDate = (date, format = DateFormat.EXTENDED) => date ? dayjs(date).format(format) : '';
 
-function getDurationOfEvent(start, end) {
-  const dateFrom = dayjs(start);
-  const dateTo = dayjs(end);
-  const duration = dateTo.diff(dateFrom, 'minute');
+const humanizeEventTime = (date, format = DateFormat.HOURS_MINUTES) => date ? dayjs(date).format(format) : '';
 
-  if (duration < TimeCalc.MIN_IN_HOUR) {
-    return `${duration}M`;
-  } else if (duration > TimeCalc.MIN_IN_HOUR && duration < TimeCalc.MIN_IN_DAY) {
-    const hours = Math.floor(duration / TimeCalc.MIN_IN_HOUR);
-    const minutes = duration % TimeCalc.MIN_IN_HOUR;
+const formatEventDuration = (days, hours, minutes) => {
+  let eventDuration = '';
 
-    return `${hours}H ${minutes}M`;
-  } else if (duration > TimeCalc.MIN_IN_DAY) {
-    const minutes = duration % TimeCalc.MIN_IN_HOUR;
-    const durationWithoutMin = duration - minutes;
-
-    const days = Math.floor(durationWithoutMin / TimeCalc.MIN_IN_HOUR / TimeCalc.HOURS_IN_DAY);
-    const hours = Math.floor((durationWithoutMin / TimeCalc.MIN_IN_HOUR) % TimeCalc.HOURS_IN_DAY);
-
-    return `${days}D ${hours}H ${minutes}M`;
+  if (days) {
+    eventDuration += `${days}D`;
+  }
+  if (hours) {
+    eventDuration += ` ${hours}H`;
+  }
+  if (minutes) {
+    eventDuration += ` ${minutes}M`;
   }
 
-  // через формат почему-то совсем не получалось
-  // if (duration < TimeCalc.MS_IN_HOUR){
-  //   return dayjs(duration).format('mm[M]');
-  // } else if (duration > TimeCalc.MS_IN_HOUR && duration < TimeCalc.MS_IN_DAY) {
-  //   return dayjs(duration).format('HH[H] mm[M]');
-  // } else if (duration > TimeCalc.MS_IN_DAY) {
-  //   return dayjs(duration).format('DD[D] HH[H] mm[M]');
-  // }
-}
+  return eventDuration;
+};
 
-export { getRandomArrayElement, getRandomNumber, humanizeEventDate, getDurationOfEvent };
+const getEventDuration = (start, end) => {
+  const eventDuration = dayjs.duration(dayjs(end).diff(dayjs(start)));
+
+  const days = eventDuration.days();
+  const hours = eventDuration.hours();
+  const minutes = eventDuration.minutes();
+
+  return formatEventDuration(days, hours, minutes);
+};
+
+export { getRandomArrayElement, getRandomNumber, humanizeEventDate, humanizeEventTime, getEventDuration };

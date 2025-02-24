@@ -1,17 +1,16 @@
 import { createElement } from '../render.js';
 import { createOfferListTemplate } from './event-edit-form-view.js';
 import { humanizeEventDate } from '../util.js';
-import { DateFormat } from '../const.js';
 
-function createPhotoTemplate(photo) {
+const createPhotoTemplate = (photo) => {
   const { src, description } = photo;
 
   return (
     `<img class="event__photo" src=${src} alt=${description}>`
   );
-}
+};
 
-function createPhotoListTemplate(photos) {
+const createPhotoListTemplate = (photos) => {
   if (photos.length !== 0) {
     return (
       `<div class="event__photos-container">
@@ -23,9 +22,9 @@ function createPhotoListTemplate(photos) {
   }
 
   return '';
-}
+};
 
-function createEventCreateFormTemplate(event, destination, offer, checkedOffers) {
+const createEventCreateFormTemplate = (event, destination, offer, checkedOffers) => {
   const { type, dateFrom, dateTo } = event;
   const { name, description, pictures } = destination;
   const { offers } = offer;
@@ -107,10 +106,10 @@ function createEventCreateFormTemplate(event, destination, offer, checkedOffers)
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeEventDate(dateFrom, DateFormat.EXTENDED)}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeEventDate(dateFrom)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeEventDate(dateTo, DateFormat.EXTENDED)}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeEventDate(dateTo)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -138,7 +137,7 @@ function createEventCreateFormTemplate(event, destination, offer, checkedOffers)
       </form>
     </li>`
   );
-}
+};
 
 export default class EventCreateFormView {
   constructor({ event, destination, offer, checkedOffers }) {

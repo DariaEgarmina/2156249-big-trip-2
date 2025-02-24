@@ -1,8 +1,8 @@
 import { createElement } from '../render.js';
-import { humanizeEventDate, getDurationOfEvent } from '../util.js';
+import { humanizeEventDate, humanizeEventTime, getEventDuration } from '../util.js';
 import { DateFormat } from '../const.js';
 
-function createCheckedOfferTemplate(checkedOffer) {
+const createCheckedOfferTemplate = (checkedOffer) => {
   const { title, price } = checkedOffer;
 
   return (
@@ -12,9 +12,9 @@ function createCheckedOfferTemplate(checkedOffer) {
         <span class="event__offer-price">${price}</span>
     </li>`
   );
-}
+};
 
-function createOfferListTemplate(checkedOffers) {
+const createOfferListTemplate = (checkedOffers) => {
   if (checkedOffers.length !== 0) {
     return (
       `<ul class="event__selected-offers">
@@ -24,22 +24,20 @@ function createOfferListTemplate(checkedOffers) {
   }
 
   return '';
-}
+};
 
-function makeEventFavorite(isFavorite) {
-  if (isFavorite) {
-    return 'event__favorite-btn--active';
-  }
-  return '';
-}
+const makeEventFavorite = (isFavorite) => {
+  const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
+  return favoriteClassName;
+};
 
-function createEventTemplate(event, checkedOffers) {
+const createEventTemplate = (event, checkedOffers) => {
   const { type, destination, basePrice, dateFrom, dateTo, isFavorite } = event;
 
   const date = humanizeEventDate(dateFrom, DateFormat.DAY_MONTH);
-  const timeFrom = humanizeEventDate(dateFrom, DateFormat.HOURS_MINUTES);
-  const timeTo = humanizeEventDate(dateTo, DateFormat.HOURS_MINUTES);
-  const duration = getDurationOfEvent(dateFrom, dateTo);
+  const timeFrom = humanizeEventTime(dateFrom);
+  const timeTo = humanizeEventTime(dateTo);
+  const duration = getEventDuration(dateFrom, dateTo);
 
   return (
     `<li class="trip-events__item">
@@ -76,7 +74,7 @@ function createEventTemplate(event, checkedOffers) {
       </div>
     </li>`
   );
-}
+};
 
 export default class EventView {
   constructor({ event, checkedOffers }) {
