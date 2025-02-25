@@ -15,15 +15,15 @@ const createCheckedOfferTemplate = (checkedOffer) => {
 };
 
 const createOfferListTemplate = (checkedOffers) => {
-  if (checkedOffers.length !== 0) {
-    return (
-      `<ul class="event__selected-offers">
-         ${checkedOffers.map((checkedOffer) => createCheckedOfferTemplate(checkedOffer)).join('')}
-      </ul>`
-    );
+  if (!checkedOffers.length) {
+    return '';
   }
 
-  return '';
+  return (
+    `<ul class="event__selected-offers">
+       ${checkedOffers.map((checkedOffer) => createCheckedOfferTemplate(checkedOffer)).join('')}
+    </ul>`
+  );
 };
 
 const makeEventFavorite = (isFavorite) => {
@@ -42,16 +42,16 @@ const createEventTemplate = (event, checkedOffers) => {
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="2019-03-18">${date}</time>
+        <time class="event__date" datetime="${dateFrom}">${date}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${type} ${destination}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T14:30">${timeFrom}</time>
+            <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
             &mdash;
-            <time class="event__end-time" datetime="2019-03-18T16:05">${timeTo}</time>
+            <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
           </p>
           <p class="event__duration">${duration}</p>
         </div>
@@ -77,7 +77,7 @@ const createEventTemplate = (event, checkedOffers) => {
 };
 
 export default class EventView {
-  constructor({ event, checkedOffers }) {
+  constructor({ event = {}, checkedOffers = [] } = {}) {
     this.event = event;
     this.checkedOffers = checkedOffers;
   }

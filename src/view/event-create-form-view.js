@@ -11,17 +11,17 @@ const createPhotoTemplate = (photo) => {
 };
 
 const createPhotoListTemplate = (photos) => {
-  if (photos.length !== 0) {
-    return (
-      `<div class="event__photos-container">
-        <div class="event__photos-tape">
-           ${photos.map((photo) => createPhotoTemplate(photo)).join('')}
-        </div>
-      </div>`
-    );
+  if (!photos.length) {
+    return '';
   }
 
-  return '';
+  return (
+    `<div class="event__photos-container">
+      <div class="event__photos-tape">
+         ${photos.map((photo) => createPhotoTemplate(photo)).join('')}
+      </div>
+    </div>`
+  );
 };
 
 const createEventCreateFormTemplate = (event, destination, offer, checkedOffers) => {
@@ -140,7 +140,7 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
 };
 
 export default class EventCreateFormView {
-  constructor({ event, destination, offer, checkedOffers }) {
+  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
     this.event = event;
     this.destination = destination;
     this.offer = offer;

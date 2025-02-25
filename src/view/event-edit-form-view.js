@@ -3,7 +3,7 @@ import { humanizeEventDate } from '../util.js';
 
 const createOfferTemplate = (offer, checkedOffers) => {
   const { id, title, price } = offer;
-  const isChecked = checkedOffers.map((item) => item.id).includes(id) ? 'checked' : '';
+  const isChecked = checkedOffers.some((item) => item.id === id) ? 'checked' : '';
 
   return (
     `<div class="event__offer-selector">
@@ -18,19 +18,19 @@ const createOfferTemplate = (offer, checkedOffers) => {
 };
 
 const createOfferListTemplate = (offers, checkedOffers) => {
-  if (offers.length !== 0) {
-    return (
-      `<section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-        <div class="event__available-offers">
-          ${offers.map((offer) => createOfferTemplate(offer, checkedOffers)).join('')}
-        </div>
-      </section>`
-    );
+  if (!offers.length) {
+    return '';
   }
 
-  return '';
+  return (
+    `<section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+      <div class="event__available-offers">
+        ${offers.map((offer) => createOfferTemplate(offer, checkedOffers)).join('')}
+      </div>
+    </section>`
+  );
 };
 
 const createEventEditFormTemplate = (event, destination, offer, checkedOffers) => {
@@ -150,7 +150,7 @@ const createEventEditFormTemplate = (event, destination, offer, checkedOffers) =
 };
 
 export default class EventEditFormView {
-  constructor({ event, destination, offer, checkedOffers }) {
+  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
     this.event = event;
     this.destination = destination;
     this.offer = offer; //<-это объект с двумя ключами type и offers
