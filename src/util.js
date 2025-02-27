@@ -15,16 +15,16 @@ const formatEventDuration = (days, hours, minutes) => {
   let eventDuration = '';
 
   if (days) {
-    eventDuration += `${days}D`;
+    eventDuration += `${days}D `;
   }
   if (hours) {
-    eventDuration += ` ${hours}H`;
+    eventDuration += `${hours}H `;
   }
   if (minutes) {
-    eventDuration += ` ${minutes}M`;
+    eventDuration += `${minutes}M`;
   }
 
-  return eventDuration;
+  return eventDuration.trim();
 };
 
 const getEventDuration = (start, end) => {
