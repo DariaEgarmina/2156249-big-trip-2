@@ -39,10 +39,13 @@ export default class TripEventsPresenter {
     }), this.#tripEventsListComponent.element);
 
     for (let i = 0; i < this.#tripPoints.length; i++) {
-      render(new EventView({
-        event: this.#tripPoints[i],
-        checkedOffers: this.#pointsModel.getOfferById(this.#tripPoints[i].type, this.#tripPoints[i].offers),
-      }), this.#tripEventsListComponent.element);
+      this.#renderEvent(this.#tripPoints[i], this.#pointsModel.getOfferById(this.#tripPoints[i].type, this.#tripPoints[i].offers));
     }
+  }
+
+  #renderEvent(event, checkedOffers) {
+    const eventComponent = new EventView({ event, checkedOffers });
+
+    render(eventComponent, this.#tripEventsListComponent.element);
   }
 }
