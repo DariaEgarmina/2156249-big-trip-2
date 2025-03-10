@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeEventDate, humanizeEventTime, getEventDuration } from '../util.js';
 import { DateFormat } from '../const.js';
 
@@ -76,24 +76,14 @@ const createEventTemplate = (event, checkedOffers) => {
   );
 };
 
-export default class EventView {
+export default class EventView extends AbstractView {
   constructor({ event = {}, checkedOffers = [] } = {}) {
+    super();
     this.event = event;
     this.checkedOffers = checkedOffers;
   }
 
-  getTemplate() {
+  get template() {
     return createEventTemplate(this.event, this.checkedOffers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

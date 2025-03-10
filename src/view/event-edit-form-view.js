@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeEventDate } from '../util.js';
 
 const createOfferTemplate = (offer, checkedOffers) => {
@@ -149,27 +149,17 @@ const createEventEditFormTemplate = (event, destination, offer, checkedOffers) =
   );
 };
 
-export default class EventEditFormView {
+export default class EventEditFormView extends AbstractView {
   constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
+    super();
     this.event = event;
     this.destination = destination;
     this.offer = offer; //<-это объект с двумя ключами type и offers
     this.checkedOffers = checkedOffers; // <-это массив из объектов
   }
 
-  getTemplate() {
+  get template() {
     return createEventEditFormTemplate(this.event, this.destination, this.offer, this.checkedOffers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
 

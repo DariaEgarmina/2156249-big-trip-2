@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { createOfferListTemplate } from './event-edit-form-view.js';
 import { humanizeEventDate } from '../util.js';
 
@@ -139,26 +139,16 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
   );
 };
 
-export default class EventCreateFormView {
+export default class EventCreateFormView extends AbstractView {
   constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
+    super();
     this.event = event;
     this.destination = destination;
     this.offer = offer;
     this.checkedOffers = checkedOffers;
   }
 
-  getTemplate() {
+  get template() {
     return createEventCreateFormTemplate(this.event, this.destination, this.offer, this.checkedOffers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
