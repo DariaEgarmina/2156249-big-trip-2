@@ -79,14 +79,24 @@ const createEventTemplate = (event, checkedOffers) => {
 export default class EventView extends AbstractView {
   #event = {};
   #checkedOffers = [];
+  #handleRollupButtonClick = null;
 
-  constructor({ event = {}, checkedOffers = [] } = {}) {
+  constructor({ event = {}, checkedOffers = [], onRollupButtonClick } = {}) {
     super();
     this.#event = event;
     this.#checkedOffers = checkedOffers;
+    this.#handleRollupButtonClick = onRollupButtonClick;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupButtonClickHandler);
   }
 
   get template() {
     return createEventTemplate(this.#event, this.#checkedOffers);
   }
+
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupButtonClick();
+  };
 }
