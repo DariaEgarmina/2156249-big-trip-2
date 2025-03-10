@@ -140,15 +140,20 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
 };
 
 export default class EventCreateFormView extends AbstractView {
+  #event = {};
+  #destination = {};
+  #offer = {};
+  #checkedOffers = [];
+
   constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
     super();
-    this.event = event;
-    this.destination = destination;
-    this.offer = offer;
-    this.checkedOffers = checkedOffers;
+    this.#event = event;
+    this.#destination = destination;
+    this.#offer = offer;
+    this.#checkedOffers = checkedOffers;
   }
 
   get template() {
-    return createEventCreateFormTemplate(this.event, this.destination, this.offer, this.checkedOffers);
+    return createEventCreateFormTemplate(this.#event, this.#destination, this.#offer, this.#checkedOffers);
   }
 }

@@ -150,16 +150,21 @@ const createEventEditFormTemplate = (event, destination, offer, checkedOffers) =
 };
 
 export default class EventEditFormView extends AbstractView {
+  #event = {};
+  #destination = {};
+  #offer = {};
+  #checkedOffers = [];
+
   constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
     super();
-    this.event = event;
-    this.destination = destination;
-    this.offer = offer; //<-это объект с двумя ключами type и offers
-    this.checkedOffers = checkedOffers; // <-это массив из объектов
+    this.#event = event;
+    this.#destination = destination;
+    this.#offer = offer; //<-это объект с двумя ключами type и offers
+    this.#checkedOffers = checkedOffers; // <-это массив из объектов
   }
 
   get template() {
-    return createEventEditFormTemplate(this.event, this.destination, this.offer, this.checkedOffers);
+    return createEventEditFormTemplate(this.#event, this.#destination, this.#offer, this.#checkedOffers);
   }
 }
 

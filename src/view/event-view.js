@@ -77,13 +77,16 @@ const createEventTemplate = (event, checkedOffers) => {
 };
 
 export default class EventView extends AbstractView {
+  #event = {};
+  #checkedOffers = [];
+
   constructor({ event = {}, checkedOffers = [] } = {}) {
     super();
-    this.event = event;
-    this.checkedOffers = checkedOffers;
+    this.#event = event;
+    this.#checkedOffers = checkedOffers;
   }
 
   get template() {
-    return createEventTemplate(this.event, this.checkedOffers);
+    return createEventTemplate(this.#event, this.#checkedOffers);
   }
 }
