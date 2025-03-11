@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { createOfferListTemplate } from './event-edit-form-view.js';
-import { humanizeEventDate } from '../util.js';
+import { humanizeEventDate } from '../utils/date.js';
 
 const createPhotoTemplate = (photo) => {
   const { src, description } = photo;

@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeEventDate, humanizeEventTime, getEventDuration } from '../util.js';
+import { humanizeEventDate, humanizeEventTime, getEventDuration } from '../utils/date.js';
 import { DateFormat } from '../const.js';
 
 const createCheckedOfferTemplate = (checkedOffer) => {

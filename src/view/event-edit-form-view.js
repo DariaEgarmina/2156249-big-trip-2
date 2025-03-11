@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeEventDate } from '../util.js';
+import { humanizeEventDate } from '../utils/date.js';
 
 const createOfferTemplate = (offer, checkedOffers) => {
   const { id, title, price } = offer;

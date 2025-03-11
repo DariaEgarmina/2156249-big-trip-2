@@ -1,11 +1,7 @@
-import { DateFormat } from './const';
+import { DateFormat } from '../const';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
-
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
-
-const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const humanizeEventDate = (date, format = DateFormat.EXTENDED) => date ? dayjs(date).format(format) : '';
 
@@ -37,4 +33,4 @@ const getEventDuration = (start, end) => {
   return formatEventDuration(days, hours, minutes);
 };
 
-export { getRandomArrayElement, getRandomNumber, humanizeEventDate, humanizeEventTime, getEventDuration };
+export { humanizeEventDate, humanizeEventTime, getEventDuration };
