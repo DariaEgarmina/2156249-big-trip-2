@@ -56,6 +56,10 @@ export default class TripEventsPresenter {
       onRollupButtonClick: () => {
         replaceEditFormToEvent();
         document.removeEventListener('keydown', escKeyDownHandler);
+      },
+
+      onFormSubmit: () => {
+        replaceEditFormToEvent();
       }
     });
 

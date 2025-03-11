@@ -156,8 +156,9 @@ export default class EventEditFormView extends AbstractView {
   #checkedOffers = [];
 
   #handleRollupButtonClick = null;
+  #handleFormSubmit = null;
 
-  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [], onRollupButtonClick } = {}) {
+  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [], onRollupButtonClick, onFormSubmit } = {}) {
     super();
     this.#event = event;
     this.#destination = destination;
@@ -165,9 +166,12 @@ export default class EventEditFormView extends AbstractView {
     this.#checkedOffers = checkedOffers; // <-это массив из объектов
 
     this.#handleRollupButtonClick = onRollupButtonClick;
+    this.#handleFormSubmit = onFormSubmit;
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
+    this.element.querySelector('.event--edit')
+      .addEventListener('submit', this.#formSubmitHandler);
   }
 
   get template() {
@@ -177,6 +181,11 @@ export default class EventEditFormView extends AbstractView {
   #rollupButtonClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleRollupButtonClick();
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
   };
 }
 
