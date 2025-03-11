@@ -1,6 +1,7 @@
 import TripEventsListView from '../view/trip-events-list-view.js';
 import EventView from '../view/event-view.js';
 import EventEditFormView from '../view/event-edit-form-view.js';
+import NoEventView from '../view/no-event-view.js';
 import { replace } from '../framework/render.js';
 //import EventCreateFormView from '../view/event-create-form-view.js';
 
@@ -13,6 +14,7 @@ export default class TripEventsPresenter {
   #tripPoints = [];
 
   #tripEventsListComponent = new TripEventsListView();
+  #noEventComponent = new NoEventView();
 
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
@@ -72,6 +74,10 @@ export default class TripEventsPresenter {
   }
 
   #renderEventsList() {
+    if (this.#tripPoints.length === 0) {
+      render(this.#noEventComponent, this.#tripEventsContainer);
+    }
+
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
     for (let i = 0; i < this.#tripPoints.length; i++) {
