@@ -22,14 +22,10 @@ export default class TripEventsPresenter {
   init() {
     this.#tripPoints = [...this.#pointsModel.points];
 
-    render(this.#tripEventsListComponent, this.#tripEventsContainer);
-
-    for (let i = 0; i < this.#tripPoints.length; i++) {
-      this.#renderEvent(this.#tripPoints[i], this.#pointsModel.getOfferById(this.#tripPoints[i].type, this.#tripPoints[i].offers));
-    }
+    this.#renderEventsList();
   }
 
-  #renderEvent(event, checkedOffers) {
+  #renderEvent(event, destination, offer, checkedOffers) {
     const escKeyDownHandler = (evt) => {
       if (evt.key === 'Escape') {
         evt.preventDefault();
@@ -41,6 +37,7 @@ export default class TripEventsPresenter {
     const eventComponent = new EventView({
       event,
       checkedOffers,
+
       onRollupButtonClick: () => {
         replaceEventToEditForm();
         document.addEventListener('keydown', escKeyDownHandler);
@@ -48,10 +45,10 @@ export default class TripEventsPresenter {
     });
 
     const eventEditComponent = new EventEditFormView({
-      event: this.#tripPoints[0],
-      destination: this.#pointsModel.getDestinationById(this.#tripPoints[0].id),
-      offer: this.#pointsModel.getOfferByType(this.#tripPoints[0].type), //<-это объект с двумя ключами type и offers
-      checkedOffers: this.#pointsModel.getOfferById(this.#tripPoints[0].type, this.#tripPoints[0].offers), // <-это массив из объектов
+      event,
+      destination,
+      offer,
+      checkedOffers,
 
       onRollupButtonClick: () => {
         replaceEditFormToEvent();
@@ -72,5 +69,18 @@ export default class TripEventsPresenter {
     }
 
     render(eventComponent, this.#tripEventsListComponent.element);
+  }
+
+  #renderEventsList() {
+    render(this.#tripEventsListComponent, this.#tripEventsContainer);
+
+    for (let i = 0; i < this.#tripPoints.length; i++) {
+      this.#renderEvent(
+        this.#tripPoints[i],
+        this.#pointsModel.getDestinationById(this.#tripPoints[i].id),
+        this.#pointsModel.getOfferByType(this.#tripPoints[i].type),
+        this.#pointsModel.getOfferById(this.#tripPoints[i].type, this.#tripPoints[i].offers)
+      );
+    }
   }
 }
