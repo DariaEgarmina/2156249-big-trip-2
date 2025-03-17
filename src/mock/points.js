@@ -18,8 +18,8 @@ const mockPoints = [
   {
     id: '2',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2024-01-01T00:30:00.845Z',
-    dateTo: '2024-01-02T03:00:00.375Z',
+    dateFrom: '2025-03-17T00:30:00.845Z',
+    dateTo: '2025-03-31T03:00:00.375Z',
     destination: 'Vladivostok',
     isFavorite: false,
     offers: [
@@ -32,8 +32,8 @@ const mockPoints = [
   {
     id: '3',
     basePrice: getRandomNumber(10, 1100),
-    dateFrom: '2024-03-27T18:15:36.845Z',
-    dateTo: '2024-03-28T21:00:47.375Z',
+    dateFrom: '2025-03-27T18:15:36.845Z',
+    dateTo: '2025-03-28T21:00:47.375Z',
     destination: 'Novosibirsk',
     isFavorite: false,
     offers: [],

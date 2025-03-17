@@ -1,7 +1,15 @@
-import { DateFormat } from '../const';
+import { DateFormat } from '../const.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
+
+const currentDate = new Date();
+
+const DateComparison = {
+  isBeforeCurrentDate: (targetDate) => dayjs(targetDate).isBefore(dayjs(currentDate)),
+  isAfterCurrentDate: (targetDate) => dayjs(targetDate).isAfter(dayjs(currentDate)),
+  isSameWithCurrentDate: (targetDate) => dayjs(targetDate).isSame(dayjs(currentDate)),
+};
 
 const humanizeEventDate = (date, format = DateFormat.EXTENDED) => date ? dayjs(date).format(format) : '';
 
@@ -33,4 +41,4 @@ const getEventDuration = (start, end) => {
   return formatEventDuration(days, hours, minutes);
 };
 
-export { humanizeEventDate, humanizeEventTime, getEventDuration };
+export { humanizeEventDate, humanizeEventTime, getEventDuration, DateComparison };
