@@ -74,7 +74,7 @@ export default class TripEventsPresenter {
   }
 
   #renderEventsList() {
-    if (this.#tripPoints.length === 0) {
+    if (!this.#tripPoints.length) {
       render(this.#noEventComponent, this.#tripEventsContainer);
     }
 
