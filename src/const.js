@@ -4,4 +4,11 @@ const DateFormat = {
   HOURS_MINUTES: 'HH:mm',
 };
 
-export { DateFormat };
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};
+
+export { DateFormat, FilterType };

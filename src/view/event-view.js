@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
-import { humanizeEventDate, humanizeEventTime, getEventDuration } from '../util.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { humanizeEventDate, humanizeEventTime, getEventDuration } from '../utils/date.js';
 import { DateFormat } from '../const.js';
 
 const createCheckedOfferTemplate = (checkedOffer) => {
@@ -76,24 +76,27 @@ const createEventTemplate = (event, checkedOffers) => {
   );
 };
 
-export default class EventView {
-  constructor({ event = {}, checkedOffers = [] } = {}) {
-    this.event = event;
-    this.checkedOffers = checkedOffers;
+export default class EventView extends AbstractView {
+  #event = {};
+  #checkedOffers = [];
+  #handleRollupButtonClick = null;
+
+  constructor({ event = {}, checkedOffers = [], onRollupButtonClick } = {}) {
+    super();
+    this.#event = event;
+    this.#checkedOffers = checkedOffers;
+    this.#handleRollupButtonClick = onRollupButtonClick;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupButtonClickHandler);
   }
 
-  getTemplate() {
-    return createEventTemplate(this.event, this.checkedOffers);
+  get template() {
+    return createEventTemplate(this.#event, this.#checkedOffers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupButtonClick();
+  };
 }

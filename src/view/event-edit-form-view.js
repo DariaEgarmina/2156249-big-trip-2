@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
-import { humanizeEventDate } from '../util.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { humanizeEventDate } from '../utils/date.js';
 
 const createOfferTemplate = (offer, checkedOffers) => {
   const { id, title, price } = offer;
@@ -149,28 +149,44 @@ const createEventEditFormTemplate = (event, destination, offer, checkedOffers) =
   );
 };
 
-export default class EventEditFormView {
-  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
-    this.event = event;
-    this.destination = destination;
-    this.offer = offer; //<-это объект с двумя ключами type и offers
-    this.checkedOffers = checkedOffers; // <-это массив из объектов
+export default class EventEditFormView extends AbstractView {
+  #event = {};
+  #destination = {};
+  #offer = {};
+  #checkedOffers = [];
+
+  #handleRollupButtonClick = null;
+  #handleFormSubmit = null;
+
+  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [], onRollupButtonClick, onFormSubmit } = {}) {
+    super();
+    this.#event = event;
+    this.#destination = destination;
+    this.#offer = offer; //<-это объект с двумя ключами type и offers
+    this.#checkedOffers = checkedOffers; // <-это массив из объектов
+
+    this.#handleRollupButtonClick = onRollupButtonClick;
+    this.#handleFormSubmit = onFormSubmit;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupButtonClickHandler);
+    this.element.querySelector('.event--edit')
+      .addEventListener('submit', this.#formSubmitHandler);
   }
 
-  getTemplate() {
-    return createEventEditFormTemplate(this.event, this.destination, this.offer, this.checkedOffers);
+  get template() {
+    return createEventEditFormTemplate(this.#event, this.#destination, this.#offer, this.#checkedOffers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupButtonClick();
+  };
 
-  removeElement() {
-    this.element = null;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 }
 
 export { createOfferListTemplate };
