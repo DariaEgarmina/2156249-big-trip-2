@@ -2,10 +2,8 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import EventView from '../view/event-view.js';
 import EventEditFormView from '../view/event-edit-form-view.js';
 import NoEventView from '../view/no-event-view.js';
-import { replace } from '../framework/render.js';
-//import EventCreateFormView from '../view/event-create-form-view.js';
-
-import { render } from '../framework/render.js';
+import SortView from '../view/sort-view.js';
+import { replace, render, RenderPosition } from '../framework/render.js';
 
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
@@ -15,6 +13,7 @@ export default class TripEventsPresenter {
 
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = new NoEventView();
+  #sortComponent = new SortView();
 
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
@@ -25,6 +24,10 @@ export default class TripEventsPresenter {
     this.#tripPoints = [...this.#pointsModel.points];
 
     this.#renderEventsList();
+  }
+
+  #renderSort() {
+    render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderEvent(event, destination, offer, checkedOffers) {
@@ -73,20 +76,30 @@ export default class TripEventsPresenter {
     render(eventComponent, this.#tripEventsListComponent.element);
   }
 
-  #renderEventsList() {
-    if (!this.#tripPoints.length) {
-      render(this.#noEventComponent, this.#tripEventsContainer);
-    }
+  #renderEvents() {
+    this.#tripPoints.forEach((point) =>
+      this.#renderEvent(
+        point,
+        this.#pointsModel.getDestinationById(point.id),
+        this.#pointsModel.getOfferByType(point.type),
+        this.#pointsModel.getOfferById(point.type, point.offers)
+      )
+    );
+  }
 
+  #renderNoEvent() {
+    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderEventsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    for (let i = 0; i < this.#tripPoints.length; i++) {
-      this.#renderEvent(
-        this.#tripPoints[i],
-        this.#pointsModel.getDestinationById(this.#tripPoints[i].id),
-        this.#pointsModel.getOfferByType(this.#tripPoints[i].type),
-        this.#pointsModel.getOfferById(this.#tripPoints[i].type, this.#tripPoints[i].offers)
-      );
+    if (!this.#tripPoints.length) {
+      this.#renderNoEvent();
     }
+
+    this.#renderEvents();
+
+    this.#renderSort();
   }
 }
