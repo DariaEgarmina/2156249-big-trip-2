@@ -1,9 +1,8 @@
+import EventPresenter from './event-presenter.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
-import EventView from '../view/event-view.js';
-import EventEditFormView from '../view/event-edit-form-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
-import { replace, render, RenderPosition } from '../framework/render.js';
+import { render, RenderPosition } from '../framework/render.js';
 
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
@@ -31,49 +30,11 @@ export default class TripEventsPresenter {
   }
 
   #renderEvent(event, destination, offer, checkedOffers) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceEditFormToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const eventComponent = new EventView({
-      event,
-      checkedOffers,
-
-      onRollupButtonClick: () => {
-        replaceEventToEditForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+    const eventPresenter = new EventPresenter({
+      tripEventsListComponent: this.#tripEventsListComponent.element
     });
 
-    const eventEditComponent = new EventEditFormView({
-      event,
-      destination,
-      offer,
-      checkedOffers,
-
-      onRollupButtonClick: () => {
-        replaceEditFormToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      },
-
-      onFormSubmit: () => {
-        replaceEditFormToEvent();
-      }
-    });
-
-    function replaceEventToEditForm() {
-      replace(eventEditComponent, eventComponent);
-    }
-
-    function replaceEditFormToEvent() {
-      replace(eventComponent, eventEditComponent);
-    }
-
-    render(eventComponent, this.#tripEventsListComponent.element);
+    eventPresenter.init(event, destination, offer, checkedOffers);
   }
 
   #renderEvents() {
