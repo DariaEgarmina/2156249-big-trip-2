@@ -14,6 +14,8 @@ export default class TripEventsPresenter {
   #noEventComponent = new NoEventView();
   #sortComponent = new SortView();
 
+  #eventPresenters = new Map();
+
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
@@ -35,6 +37,8 @@ export default class TripEventsPresenter {
     });
 
     eventPresenter.init(event, destination, offer, checkedOffers);
+
+    this.#eventPresenters.set(event.pointId, eventPresenter);
   }
 
   #renderEvents() {
@@ -50,6 +54,11 @@ export default class TripEventsPresenter {
 
   #renderNoEvent() {
     render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #clearEventsList() {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
   }
 
   #renderEventsList() {
