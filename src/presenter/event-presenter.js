@@ -1,6 +1,6 @@
 import EventView from '../view/event-view.js';
 import EventEditFormView from '../view/event-edit-form-view.js';
-import { replace, render } from '../framework/render.js';
+import { replace, render, remove } from '../framework/render.js';
 
 export default class EventPresenter {
   #tripEventsListComponent = null;
@@ -13,6 +13,9 @@ export default class EventPresenter {
   }
 
   init(event, destination, offer, checkedOffers) {
+    const prevEventComponent = this.#eventComponent;
+    const prevEventEditComponent = this.#eventEditComponent;
+
     this.#eventComponent = new EventView({
       event,
       checkedOffers,
@@ -29,7 +32,26 @@ export default class EventPresenter {
       onFormSubmit: this.#handleFormSubmit,
     });
 
-    render(this.#eventComponent, this.#tripEventsListComponent);
+    if (prevEventComponent === null || prevEventEditComponent === null) {
+      render(this.#eventComponent, this.#tripEventsListComponent);
+      return;
+    }
+
+    if (this.#tripEventsListComponent.contains(prevEventComponent.element)) {
+      replace(this.#eventComponent, prevEventComponent);
+    }
+
+    if (this.#tripEventsListComponent.contains(prevEventEditComponent.element)) {
+      replace(this.#eventEditComponent, prevEventEditComponent);
+    }
+
+    remove(prevEventComponent);
+    remove(prevEventEditComponent);
+  }
+
+  destroy() {
+    remove(this.#eventComponent);
+    remove(this.#eventEditComponent);
   }
 
   #handleRollupButtonClick = () => {
