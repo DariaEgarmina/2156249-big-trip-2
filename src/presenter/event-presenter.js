@@ -8,22 +8,32 @@ export default class EventPresenter {
   #eventComponent = null;
   #eventEditComponent = null;
 
-  constructor({ tripEventsListComponent }) {
+  #event = null;
+
+  #handleDataChange = null; // это св-во получит метод handleEventChange из trip-events-presenter
+
+  constructor({ tripEventsListComponent, onDataChange }) {
     this.#tripEventsListComponent = tripEventsListComponent;
+    this.#handleDataChange = onDataChange; // onDataChange - это метод handleEventChange из trip-events-presenter,
+    //в котором обновляем информацию о событии в массиве триппоинтс и инициализируем презентор нового события
+    // в этот метод мы должны передать обновлённое событие!!!!
   }
 
   init(event, destination, offer, checkedOffers) {
+    this.#event = event;
+
     const prevEventComponent = this.#eventComponent;
     const prevEventEditComponent = this.#eventEditComponent;
 
     this.#eventComponent = new EventView({
-      event,
+      event: this.#event,
       checkedOffers,
       onRollupButtonClick: this.#handleRollupButtonClick,
+      onFavoriteButtonClick: this.#handleFavoriteButtonClick,
     });
 
     this.#eventEditComponent = new EventEditFormView({
-      event,
+      event: this.#event,
       destination,
       offer,
       checkedOffers,
@@ -64,6 +74,10 @@ export default class EventPresenter {
 
   #handleFormSubmit = () => {
     this.#replaceEditFormToEvent();
+  };
+
+  #handleFavoriteButtonClick = () => {
+    this.#handleDataChange({... this.#event, isFavorite: !this.#event.isFavorite}); // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
   };
 
   #replaceEventToEditForm() {

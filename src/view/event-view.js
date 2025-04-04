@@ -80,15 +80,19 @@ export default class EventView extends AbstractView {
   #event = {};
   #checkedOffers = [];
   #handleRollupButtonClick = null;
+  #handleFavoriteButtonClick = null;
 
-  constructor({ event = {}, checkedOffers = [], onRollupButtonClick } = {}) {
+  constructor({ event = {}, checkedOffers = [], onRollupButtonClick, onFavoriteButtonClick} = {}) {
     super();
     this.#event = event;
     this.#checkedOffers = checkedOffers;
     this.#handleRollupButtonClick = onRollupButtonClick;
+    this.#handleFavoriteButtonClick = onFavoriteButtonClick;
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
+    this.element.querySelector('.event__favorite-btn')
+      .addEventListener('click', this.#favoriteButtonClickHandler);
   }
 
   get template() {
@@ -98,5 +102,10 @@ export default class EventView extends AbstractView {
   #rollupButtonClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleRollupButtonClick();
+  };
+
+  #favoriteButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteButtonClick();
   };
 }
