@@ -4,12 +4,13 @@ import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
 import { render, RenderPosition } from '../framework/render.js';
 import { updateItem } from '../utils/common.js';
-
+import { SortType } from '../const.js';
+import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #pointsModel = null;
 
-  #tripPoints = [];
+  #tripEvents = [];
 
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = new NoEventView();
@@ -17,13 +18,17 @@ export default class TripEventsPresenter {
 
   #eventPresenters = new Map();
 
+  #currentSortType = SortType.DAY;
+  #sourcedTripEvents = [];
+
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
   }
 
   init() {
-    this.#tripPoints = [...this.#pointsModel.points];
+    this.#tripEvents = [...this.#pointsModel.points];
+    this.#sourcedTripEvents = [...this.#pointsModel.points];
 
     this.#renderEventsList();
   }
@@ -33,7 +38,8 @@ export default class TripEventsPresenter {
   };
 
   #handleEventChange = (updatedEvent) => {
-    this.#tripPoints = updateItem(this.#tripPoints, updatedEvent);
+    this.#tripEvents = updateItem(this.#tripEvents, updatedEvent);
+    this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent);
     this.#eventPresenters
       .get(updatedEvent.pointId)
       .init(
@@ -44,8 +50,29 @@ export default class TripEventsPresenter {
       );
   };
 
-  #handleSortTypeChange = (sortType) => {
+  #sortEvents(sortType) {
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#tripEvents.sort(sortEventsByPrice); // Добавить функцию для сортировки
+        break;
+      case SortType.TIME:
+        this.#tripEvents.sort(sortEventsByTime); // Добавить функцию для сортировки
+        break;
+      case SortType.DAY:
+        this.#tripEvents = [... this.#sourcedTripEvents];
+    }
 
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if(this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortEvents(sortType);
+    this.#clearEventsList();
+    this.#renderEventsList();
   };
 
   #renderSort() {
@@ -69,12 +96,12 @@ export default class TripEventsPresenter {
   }
 
   #renderEvents() {
-    this.#tripPoints.forEach((point) =>
+    this.#tripEvents.forEach((event) =>
       this.#renderEvent(
-        point,
-        this.#pointsModel.getDestinationById(point.id),
-        this.#pointsModel.getOfferByType(point.type),
-        this.#pointsModel.getOfferById(point.type, point.offers)
+        event,
+        this.#pointsModel.getDestinationById(event.id),
+        this.#pointsModel.getOfferByType(event.type),
+        this.#pointsModel.getOfferById(event.type, event.offers)
       )
     );
   }
@@ -91,7 +118,7 @@ export default class TripEventsPresenter {
   #renderEventsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    if (!this.#tripPoints.length) {
+    if (!this.#tripEvents.length) {
       this.#renderNoEvent();
     }
 
