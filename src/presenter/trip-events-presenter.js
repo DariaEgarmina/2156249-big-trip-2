@@ -13,7 +13,7 @@ export default class TripEventsPresenter {
 
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = new NoEventView();
-  #sortComponent = new SortView();
+  #sortComponent = null;
 
   #eventPresenters = new Map();
 
@@ -44,7 +44,15 @@ export default class TripEventsPresenter {
       );
   };
 
+  #handleSortTypeChange = (sortType) => {
+
+  };
+
   #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange,
+    });
+
     render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
   }
 
