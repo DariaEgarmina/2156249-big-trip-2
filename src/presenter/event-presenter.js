@@ -2,6 +2,11 @@ import EventView from '../view/event-view.js';
 import EventEditFormView from '../view/event-edit-form-view.js';
 import { replace, render, remove } from '../framework/render.js';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class EventPresenter {
   #tripEventsListComponent = null;
 
@@ -9,14 +14,15 @@ export default class EventPresenter {
   #eventEditComponent = null;
 
   #event = null;
+  #mode = Mode.DEFAULT;
 
-  #handleDataChange = null; // это св-во получит метод handleEventChange из trip-events-presenter
+  #handleDataChange = null;
+  #handleModeChange = null;
 
-  constructor({ tripEventsListComponent, onDataChange }) {
+  constructor({ tripEventsListComponent, onDataChange, onModeChange }) {
     this.#tripEventsListComponent = tripEventsListComponent;
-    this.#handleDataChange = onDataChange; // onDataChange - это метод handleEventChange из trip-events-presenter,
-    //в котором обновляем информацию о событии в массиве триппоинтс и инициализируем презентор нового события
-    // в этот метод мы должны передать обновлённое событие!!!!
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(event, destination, offer, checkedOffers) {
@@ -47,11 +53,11 @@ export default class EventPresenter {
       return;
     }
 
-    if (this.#tripEventsListComponent.contains(prevEventComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    if (this.#tripEventsListComponent.contains(prevEventEditComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#eventEditComponent, prevEventEditComponent);
     }
 
@@ -62,6 +68,12 @@ export default class EventPresenter {
   destroy() {
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
+  }
+
+  resetView() {
+    if(this.#mode !== Mode.DEFAULT) {
+      this.#replaceEditFormToEvent();
+    }
   }
 
   #handleRollupButtonClick = () => {
@@ -83,11 +95,14 @@ export default class EventPresenter {
   #replaceEventToEditForm() {
     replace(this.#eventEditComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
   #replaceEditFormToEvent() {
     replace(this.#eventComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #escKeyDownHandler = (evt) => {
