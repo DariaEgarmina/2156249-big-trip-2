@@ -30,7 +30,14 @@ export default class TripEventsPresenter {
 
   #handleEventChange = (updatedEvent) => {
     this.#tripPoints = updateItem(this.#tripPoints, updatedEvent);
-    this.#eventPresenters.get(updatedEvent.pointId).init(updatedEvent);
+    this.#eventPresenters
+      .get(updatedEvent.pointId)
+      .init(
+        updatedEvent,
+        this.#pointsModel.getDestinationById(updatedEvent.id),
+        this.#pointsModel.getOfferByType(updatedEvent.type),
+        this.#pointsModel.getOfferById(updatedEvent.type, updatedEvent.offers)
+      );
   };
 
   #renderSort() {
