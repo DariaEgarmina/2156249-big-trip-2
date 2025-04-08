@@ -30,7 +30,7 @@ export default class TripEventsPresenter {
     this.#tripEvents = [...this.#pointsModel.points];
     this.#sourcedTripEvents = [...this.#pointsModel.points];
 
-    this.#renderEventsList();
+    this.#renderEventsListAndSort();
   }
 
   #handleModeChange = () => {
@@ -53,10 +53,10 @@ export default class TripEventsPresenter {
   #sortEvents(sortType) {
     switch (sortType) {
       case SortType.PRICE:
-        this.#tripEvents.sort(sortEventsByPrice); // Добавить функцию для сортировки
+        this.#tripEvents.sort(sortEventsByPrice);
         break;
       case SortType.TIME:
-        this.#tripEvents.sort(sortEventsByTime); // Добавить функцию для сортировки
+        this.#tripEvents.sort(sortEventsByTime);
         break;
       case SortType.DAY:
         this.#tripEvents = [... this.#sourcedTripEvents];
@@ -66,7 +66,7 @@ export default class TripEventsPresenter {
   }
 
   #handleSortTypeChange = (sortType) => {
-    if(this.#currentSortType === sortType) {
+    if (this.#currentSortType === sortType) {
       return;
     }
 
@@ -123,7 +123,10 @@ export default class TripEventsPresenter {
     }
 
     this.#renderEvents();
+  }
 
+  #renderEventsListAndSort() {
+    this.#renderEventsList();
     this.#renderSort();
   }
 }
