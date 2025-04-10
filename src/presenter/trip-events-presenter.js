@@ -2,7 +2,7 @@ import EventPresenter from './event-presenter.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
-import { render, RenderPosition } from '../framework/render.js';
+import { render, RenderPosition, remove } from '../framework/render.js';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
@@ -71,13 +71,20 @@ export default class TripEventsPresenter {
     }
 
     this.#sortEvents(sortType);
+    this.#clearSort(this.#sortComponent);
+    this.#renderSort();
     this.#clearEventsList();
     this.#renderEventsList();
   };
 
+  #clearSort(oldSortView) {
+    remove(oldSortView);
+  }
+
   #renderSort() {
     this.#sortComponent = new SortView({
       onSortTypeChange: this.#handleSortTypeChange,
+      sortType: this.#currentSortType,
     });
 
     render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
