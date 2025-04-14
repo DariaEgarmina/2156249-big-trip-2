@@ -16,7 +16,7 @@ export default class TripEventsPresenter {
   #noEventComponent = new NoEventView();
   #sortComponent = null;
 
-  #eventPresenters = new Map();
+  #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
 
   #currentSortType = SortType.DAY;
   #sourcedTripEvents = [];
@@ -37,8 +37,9 @@ export default class TripEventsPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  //метод-обработчик обновления точки маршрута
   #handleEventChange = (updatedEvent) => {
-    this.#tripEvents = updateItem(this.#tripEvents, updatedEvent);
+    this.#tripEvents = updateItem(this.#tripEvents, updatedEvent); //обновляем точку маршрута в свойстве-копии точек маршрута из модели
     this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent);
     this.#eventPresenters
       .get(updatedEvent.pointId)
@@ -93,13 +94,13 @@ export default class TripEventsPresenter {
   #renderEvent(event, destination, offer, checkedOffers) {
     const eventPresenter = new EventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
-      onDataChange: this.#handleEventChange,
+      onDataChange: this.#handleEventChange, //передаем в презентер точки маршрута обработчик обнавления точки маршрута
       onModeChange: this.#handleModeChange,
     });
 
     eventPresenter.init(event, destination, offer, checkedOffers);
 
-    this.#eventPresenters.set(event.pointId, eventPresenter);
+    this.#eventPresenters.set(event.pointId, eventPresenter); //Добавляем в коллекцию созданный презентер
   }
 
   #renderEvents() {
@@ -117,6 +118,7 @@ export default class TripEventsPresenter {
     render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
   }
 
+  //метод, чтобы очистить весь список точек маршрута
   #clearEventsList() {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();

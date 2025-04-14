@@ -180,12 +180,12 @@ export default class EventEditFormView extends AbstractView {
 
   #rollupButtonClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleRollupButtonClick();
+    this.#handleRollupButtonClick(this.#event);
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this.#event);
   };
 }
 

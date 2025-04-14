@@ -87,7 +87,7 @@ export default class EventView extends AbstractView {
     this.#event = event;
     this.#checkedOffers = checkedOffers;
     this.#handleRollupButtonClick = onRollupButtonClick;
-    this.#handleFavoriteButtonClick = onFavoriteButtonClick;
+    this.#handleFavoriteButtonClick = onFavoriteButtonClick; //получаем обработчик нажатия на кнопку избранное
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
@@ -104,6 +104,8 @@ export default class EventView extends AbstractView {
     this.#handleRollupButtonClick();
   };
 
+
+  //обработчик, в котором котором мы вызываем колбэк this.#handleFavoriteButtonClick, который нам приходит снаружи
   #favoriteButtonClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleFavoriteButtonClick();
