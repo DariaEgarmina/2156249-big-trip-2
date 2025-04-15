@@ -79,6 +79,7 @@ export default class EventPresenter {
   resetView() {
     if(this.#mode !== Mode.DEFAULT) {
       this.#replaceEditFormToEvent();
+      this.#handleDataChange(this.#event); //используем обрабочик для обновления события точки маршрута
     }
   }
 
@@ -94,9 +95,7 @@ export default class EventPresenter {
   };
 
   //обработчик нажатия на кнопку save в форме
-  //тут используем обрабочик для обновления события точки маршрута
-  #handleFormSubmit = (event) => {
-    this.#handleDataChange(event);
+  #handleFormSubmit = () => {
     this.#replaceEditFormToEvent();
   };
 
