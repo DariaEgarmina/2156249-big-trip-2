@@ -32,19 +32,19 @@ const createSortTemplate = (sortType) =>
   </form>`;
 
 export default class SortView extends AbstractView {
-  #handleSortTypeChange = null;
-  #elementToBechecked = null;
+  #handleSortTypeChange = null; //обработчик клика на кнопки сортировки, получаем из TripEventsPresenter
+  #elementToBechecked = null; //свойство для хранения актуального ти сортировки
 
   constructor({ onSortTypeChange, sortType }) {
     super();
-    this.#handleSortTypeChange = onSortTypeChange;
-    this.#elementToBechecked = sortType;
+    this.#handleSortTypeChange = onSortTypeChange; //обработчик клика на кнопки сортировки, получаем из TripEventsPresenter
+    this.#elementToBechecked = sortType; // получаем из TripEventsPresenter актуальный тип сортировки
 
     this.element.addEventListener('click', this.#sortTypeChangeHandler);
   }
 
   get template() {
-    return createSortTemplate(this.#elementToBechecked);
+    return createSortTemplate(this.#elementToBechecked); //передаем актуальный тип сортировки, чтобы добавить атрибут checked
   }
 
   #sortTypeChangeHandler = (evt) => {

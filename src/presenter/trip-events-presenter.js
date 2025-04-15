@@ -10,7 +10,7 @@ export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #pointsModel = null;
 
-  #tripEvents = [];
+  #tripEvents = []; //свойство, куда мы сохраняем все точки маршрута из модели
 
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = new NoEventView();
@@ -18,8 +18,8 @@ export default class TripEventsPresenter {
 
   #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
 
-  #currentSortType = SortType.DAY;
-  #sourcedTripEvents = [];
+  #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
+  #sourcedTripEvents = []; // свойство для хранения копии массива задач ДО СОРТИРОВКИ
 
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
@@ -28,7 +28,7 @@ export default class TripEventsPresenter {
 
   init() {
     this.#tripEvents = [...this.#pointsModel.points];
-    this.#sourcedTripEvents = [...this.#pointsModel.points];
+    this.#sourcedTripEvents = [...this.#pointsModel.points]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
 
     this.#renderEventsListAndSort();
   }
@@ -41,7 +41,7 @@ export default class TripEventsPresenter {
   //метод-обработчик обновления точки маршрута
   #handleEventChange = (updatedEvent) => {
     this.#tripEvents = updateItem(this.#tripEvents, updatedEvent); //обновляем точку маршрута в свойстве-копии точек маршрута из модели
-    this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent);
+    this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent); //не забываем обновить задачу также в свойстве для хранения копии массива задач ДО СОРТИРОВКИ
     this.#eventPresenters
       .get(updatedEvent.pointId)
       .init(
@@ -52,41 +52,45 @@ export default class TripEventsPresenter {
       );
   };
 
+  //метод для непосредственной сортировки событий
   #sortEvents(sortType) {
     switch (sortType) {
       case SortType.PRICE:
-        this.#tripEvents.sort(sortEventsByPrice);
+        this.#tripEvents.sort(sortEventsByPrice); //сортируем массив свойства this.#tripEvents, куда мы сохраняем все точки маршрута из модели
         break;
       case SortType.TIME:
         this.#tripEvents.sort(sortEventsByTime);
         break;
       case SortType.DAY:
-        this.#tripEvents = [... this.#sourcedTripEvents];
+        this.#tripEvents = [... this.#sourcedTripEvents]; //возвращаем свойство this.#tripEvents к исходному виду
     }
 
     this.#currentSortType = sortType;
   }
 
+  //метод-обработчик для клика по кнопкам сортировки
   #handleSortTypeChange = (sortType) => {
+    //проверяем, не является ли выбранный вариант сортировки тем, что уже был выбран
     if (this.#currentSortType === sortType) {
       return;
     }
 
-    this.#sortEvents(sortType);
-    this.#clearSort(this.#sortComponent);
-    this.#renderSort();
-    this.#clearEventsList();
-    this.#renderEventsList();
+    this.#sortEvents(sortType); //сортируем задачи
+    this.#clearSort(this.#sortComponent); //удаляем старую вьюшку сортировки (чтобы можно было добавить checked нужной кнопке)
+    this.#renderSort(); //рендерим новую
+    this.#clearEventsList(); //удаляем ранее отрисованный список задач в старом порядке
+    this.#renderEventsList(); //рендерим номый список задач в новом порядке
   };
 
+  //методдля удаления старой вьюшки сортировки
   #clearSort(oldSortView) {
     remove(oldSortView);
   }
 
   #renderSort() {
     this.#sortComponent = new SortView({
-      onSortTypeChange: this.#handleSortTypeChange,
-      sortType: this.#currentSortType,
+      onSortTypeChange: this.#handleSortTypeChange, //передаем во вьюшку обработчик для клика по кнопкам сортировки
+      sortType: this.#currentSortType, //пердаем во вьюшку актуальный тип сортировки
     });
 
     render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);

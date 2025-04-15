@@ -59,6 +59,7 @@ export default class EventPresenter {
 
     // Проверяем был ли уже отрисован элемент (то есть метод init() уже вызывался),
     // чтобы не пытаться заменить то, что не было отрисовано
+    // когда мы заново инициализируем вьюшки, нам нужно чтобы были отрисованы новые экземпляры, а не старые
     if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventComponent, prevEventComponent);
     }
