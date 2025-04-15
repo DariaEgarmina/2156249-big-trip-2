@@ -17,12 +17,12 @@ export default class EventPresenter {
   #mode = Mode.DEFAULT;
 
   #handleDataChange = null;
-  #handleModeChange = null;
+  #handleModeChange = null; //обработчик смены режима с просмотра на редактирование и обратно
 
   constructor({ tripEventsListComponent, onDataChange, onModeChange }) {
     this.#tripEventsListComponent = tripEventsListComponent;
     this.#handleDataChange = onDataChange; //получаем из основного презентера обработчик обновления точки маршрута
-    this.#handleModeChange = onModeChange;
+    this.#handleModeChange = onModeChange; //обработчик смены режима с просмотра на редактирование и обратно
   }
 
   init(event, destination, offer, checkedOffers) {

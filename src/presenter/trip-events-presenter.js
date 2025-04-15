@@ -33,8 +33,9 @@ export default class TripEventsPresenter {
     this.#renderEventsListAndSort();
   }
 
+  //обрабочик для смены режима с просмотра на редактирование и обратно, передаем в презентер точки маршрута
   #handleModeChange = () => {
-    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+    this.#eventPresenters.forEach((presenter) => presenter.resetView()); // метод resetView() меняет форму редактирования на карточку, если режим не равен дефолтному
   };
 
   //метод-обработчик обновления точки маршрута
@@ -95,7 +96,7 @@ export default class TripEventsPresenter {
     const eventPresenter = new EventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
       onDataChange: this.#handleEventChange, //передаем в презентер точки маршрута обработчик обнавления точки маршрута
-      onModeChange: this.#handleModeChange,
+      onModeChange: this.#handleModeChange, //передаем в презентер точки маршрута обработчик смены режима с просмотра на редактирование и обратно
     });
 
     eventPresenter.init(event, destination, offer, checkedOffers);
