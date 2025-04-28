@@ -41,4 +41,9 @@ const getEventDuration = (start, end) => {
   return formatEventDuration(days, hours, minutes);
 };
 
-export { humanizeEventDate, humanizeEventTime, getEventDuration, DateComparison };
+const getEventDurationInMs = (start, end) => {
+  const eventDuration = dayjs.duration(dayjs(end).diff(dayjs(start)));
+  return eventDuration.asMilliseconds();
+};
+
+export { humanizeEventDate, humanizeEventTime, getEventDuration, DateComparison, getEventDurationInMs };
