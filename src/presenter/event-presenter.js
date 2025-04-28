@@ -25,7 +25,7 @@ export default class EventPresenter {
     this.#handleModeChange = onModeChange; //обработчик смены режима с просмотра на редактирование и обратно
   }
 
-  init(event, destination, offer, checkedOffers) {
+  init(event) {
     this.#event = event;
 
     // Проверяем был ли вызван метод init() ранее,
@@ -36,17 +36,12 @@ export default class EventPresenter {
 
     this.#eventComponent = new EventView({
       event: this.#event,
-      checkedOffers,
       onRollupButtonClick: this.#handleRollupButtonClick,
       onFavoriteButtonClick: this.#handleFavoriteButtonClick,
     });
 
     this.#eventEditComponent = new EventEditFormView({
       event: this.#event,
-      destination,
-      offer,
-      checkedOffers,
-
       onRollupButtonClick: this.#handleRollupButtonInEditFormClick,
       onFormSubmit: this.#handleFormSubmit,
     });

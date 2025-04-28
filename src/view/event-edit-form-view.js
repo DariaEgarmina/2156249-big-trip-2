@@ -33,10 +33,10 @@ const createOfferListTemplate = (offers, checkedOffers) => {
   );
 };
 
-const createEventEditFormTemplate = (event, destination, offer, checkedOffers) => {
-  const { type, basePrice, dateFrom, dateTo } = event;
-  const { name, description } = destination;
-  const { offers } = offer;
+const createEventEditFormTemplate = (event) => {
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, destinationInfo, allOffers} = event;
+  const { name, description } = destinationInfo;
+
 
   return (
     `<li class="trip-events__item">
@@ -137,7 +137,7 @@ const createEventEditFormTemplate = (event, destination, offer, checkedOffers) =
           </header>
           <section class="event__details">
 
-            ${createOfferListTemplate(offers, checkedOffers)}
+            ${createOfferListTemplate(allOffers, checkedOffers)}
 
             <section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -151,19 +151,13 @@ const createEventEditFormTemplate = (event, destination, offer, checkedOffers) =
 
 export default class EventEditFormView extends AbstractView {
   #event = {};
-  #destination = {};
-  #offer = {};
-  #checkedOffers = [];
 
   #handleRollupButtonClick = null;
   #handleFormSubmit = null;
 
-  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [], onRollupButtonClick, onFormSubmit } = {}) {
+  constructor({ event = {}, onRollupButtonClick, onFormSubmit } = {}) {
     super();
     this.#event = event;
-    this.#destination = destination;
-    this.#offer = offer; //<-это объект с двумя ключами type и offers
-    this.#checkedOffers = checkedOffers; // <-это массив из объектов
 
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFormSubmit = onFormSubmit;
@@ -175,7 +169,7 @@ export default class EventEditFormView extends AbstractView {
   }
 
   get template() {
-    return createEventEditFormTemplate(this.#event, this.#destination, this.#offer, this.#checkedOffers);
+    return createEventEditFormTemplate(this.#event);
   }
 
   #rollupButtonClickHandler = (evt) => {

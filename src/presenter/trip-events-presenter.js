@@ -27,7 +27,7 @@ export default class TripEventsPresenter {
   }
 
   init() {
-    this.#tripEvents = [...this.#pointsModel.points];
+    this.#tripEvents = [...this.#pointsModel.getTripEvents()];
     this.#sourcedTripEvents = [...this.#pointsModel.points]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
 
     this.#renderEventsListAndSort();
