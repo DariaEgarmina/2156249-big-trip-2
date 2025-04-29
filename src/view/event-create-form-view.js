@@ -157,3 +157,5 @@ export default class EventCreateFormView extends AbstractView {
     return createEventCreateFormTemplate(this.#event, this.#destination, this.#offer, this.#checkedOffers);
   }
 }
+
+export { createPhotoListTemplate };

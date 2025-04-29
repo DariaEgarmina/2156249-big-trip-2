@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { humanizeEventDate } from '../utils/date.js';
+import { createPhotoListTemplate } from './event-create-form-view.js';
 
 const createOfferTemplate = (offer, checkedOffers) => {
   const { id, title, price } = offer;
@@ -35,8 +36,7 @@ const createOfferListTemplate = (offers, checkedOffers) => {
 
 const createEventEditFormTemplate = (event) => {
   const { type, basePrice, dateFrom, dateTo, checkedOffers, destinationInfo, allOffers} = event;
-  const { name, description } = destinationInfo;
-
+  const { name, description, pictures } = destinationInfo;
 
   return (
     `<li class="trip-events__item">
@@ -142,6 +142,8 @@ const createEventEditFormTemplate = (event) => {
             <section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
               <p class="event__destination-description">${description}</p>
+
+              ${createPhotoListTemplate(pictures)}
             </section>
           </section>
         </form>
