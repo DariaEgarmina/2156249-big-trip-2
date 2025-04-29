@@ -28,7 +28,7 @@ export default class TripEventsPresenter {
 
   init() {
     this.#tripEvents = [...this.#pointsModel.getTripEvents()];
-    this.#sourcedTripEvents = [...this.#pointsModel.points]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
+    this.#sourcedTripEvents = [...this.#pointsModel.getTripEvents()]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
 
     this.#renderEventsListAndSort();
   }
@@ -44,12 +44,7 @@ export default class TripEventsPresenter {
     this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent); //не забываем обновить задачу также в свойстве для хранения копии массива задач ДО СОРТИРОВКИ
     this.#eventPresenters
       .get(updatedEvent.pointId)
-      .init(
-        updatedEvent,
-        this.#pointsModel.getDestinationById(updatedEvent.id),
-        this.#pointsModel.getOfferByType(updatedEvent.type),
-        this.#pointsModel.getOfferById(updatedEvent.type, updatedEvent.offers)
-      );
+      .init(updatedEvent);
   };
 
   //метод для непосредственной сортировки событий
@@ -82,7 +77,7 @@ export default class TripEventsPresenter {
     this.#renderEventsList(); //рендерим номый список задач в новом порядке
   };
 
-  //методдля удаления старой вьюшки сортировки
+  //метод для удаления старой вьюшки сортировки
   #clearSort(oldSortView) {
     remove(oldSortView);
   }
@@ -96,27 +91,20 @@ export default class TripEventsPresenter {
     render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
   }
 
-  #renderEvent(event, destination, offer, checkedOffers) {
+  #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
       onDataChange: this.#handleEventChange, //передаем в презентер точки маршрута обработчик обнавления точки маршрута
       onModeChange: this.#handleModeChange, //передаем в презентер точки маршрута обработчик смены режима с просмотра на редактирование и обратно
     });
 
-    eventPresenter.init(event, destination, offer, checkedOffers);
+    eventPresenter.init(event);
 
     this.#eventPresenters.set(event.pointId, eventPresenter); //Добавляем в коллекцию созданный презентер
   }
 
   #renderEvents() {
-    this.#tripEvents.forEach((event) =>
-      this.#renderEvent(
-        event,
-        this.#pointsModel.getDestinationById(event.id),
-        this.#pointsModel.getOfferByType(event.type),
-        this.#pointsModel.getOfferById(event.type, event.offers)
-      )
-    );
+    this.#tripEvents.forEach((event) => this.#renderEvent(event));
   }
 
   #renderNoEvent() {
