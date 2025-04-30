@@ -21,6 +21,9 @@ export default class TripEventsPresenter {
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
   #sourcedTripEvents = []; // свойство для хранения копии массива задач ДО СОРТИРОВКИ
 
+  #allOffers = null;
+  #allDestinations = null;
+
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
@@ -29,6 +32,8 @@ export default class TripEventsPresenter {
   init() {
     this.#tripEvents = [...this.#pointsModel.getTripEvents()];
     this.#sourcedTripEvents = [...this.#pointsModel.getTripEvents()]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
+    this.#allOffers = this.#pointsModel.offers;
+    this.#allDestinations = this.#pointsModel.destinations;
 
     this.#renderEventsListAndSort();
   }
@@ -96,6 +101,8 @@ export default class TripEventsPresenter {
       tripEventsListComponent: this.#tripEventsListComponent.element,
       onDataChange: this.#handleEventChange, //передаем в презентер точки маршрута обработчик обнавления точки маршрута
       onModeChange: this.#handleModeChange, //передаем в презентер точки маршрута обработчик смены режима с просмотра на редактирование и обратно
+      allOffers: this.#allOffers,
+      allDestinations: this.#allDestinations,
     });
 
     eventPresenter.init(event);

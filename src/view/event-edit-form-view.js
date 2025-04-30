@@ -34,7 +34,15 @@ const createOfferListTemplate = (offers, checkedOffers) => {
   );
 };
 
-const createEventEditFormTemplate = (event) => {
+const createDestinationTemplate = (destination) => `<option value="${destination.name}"></option>`;
+
+const createAllDestinationsTemplate = (allDestinations) =>
+  `<datalist id="destination-list-1">
+      ${allDestinations.map((destination) => createDestinationTemplate(destination)).join('')}
+  </datalist>`;
+
+
+const createEventEditFormTemplate = (event, allDestinations) => {
   const { type, basePrice, dateFrom, dateTo, checkedOffers, destinationInfo, allOffers } = event;
   const { name, description, pictures } = destinationInfo;
 
@@ -106,11 +114,8 @@ const createEventEditFormTemplate = (event) => {
               ${type}
               </label>
               <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
-              <datalist id="destination-list-1">
-                <option value="Amsterdam"></option>
-                <option value="Geneva"></option>
-                <option value="Chamonix"></option>
-              </datalist>
+
+              ${createAllDestinationsTemplate(allDestinations)}
             </div>
 
             <div class="event__field-group  event__field-group--time">
@@ -156,10 +161,16 @@ export default class EventEditFormView extends AbstractStatefulView {
   #handleRollupButtonClick = null;
   #handleFormSubmit = null;
 
-  constructor({ event = {}, onRollupButtonClick, onFormSubmit } = {}) {
+  #allOffers = null;
+  #allDestinations = null;
+
+  constructor({ event = {}, onRollupButtonClick, onFormSubmit, allOffers = [], allDestinations = [] } = {}) {
     super();
     this.#event = event;
     this._setState(event);
+
+    this.#allOffers = allOffers;
+    this.#allDestinations = allDestinations;
 
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFormSubmit = onFormSubmit;
@@ -168,7 +179,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createEventEditFormTemplate(this._state);
+    return createEventEditFormTemplate(this._state, this.#allDestinations);
   }
 
   _restoreHandlers() {
@@ -178,6 +189,8 @@ export default class EventEditFormView extends AbstractStatefulView {
       .addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__type-group')
       .addEventListener('click', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
   }
 
   #rollupButtonClickHandler = (evt) => {
@@ -192,11 +205,29 @@ export default class EventEditFormView extends AbstractStatefulView {
 
   #typeChangeHandler = (evt) => {
     const value = evt.target.value;
-    if (value) {
-      this.updateElement({
-        type: evt.target.value,
-      });
+    if (!value) {
+      return;
     }
+
+    evt.preventDefault(); //??нужно ли??
+
+    const offersByType = this.#allOffers.find((offer) => offer.type === value).offers;
+
+    this.updateElement({
+      type: value,
+      allOffers: [...offersByType],
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    const value = evt.target.value;
+
+    //const destinationByName = this.#allDestinations.find((destination) => destination.name === value);
+    //const newDescription = destinationByName.description;
+
+    this.updateElement({
+      destination: value,
+    });
   };
 
   static parseEventToState(event) {

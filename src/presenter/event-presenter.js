@@ -19,10 +19,15 @@ export default class EventPresenter {
   #handleDataChange = null;
   #handleModeChange = null; //обработчик смены режима с просмотра на редактирование и обратно
 
-  constructor({ tripEventsListComponent, onDataChange, onModeChange }) {
+  #allOffers = null;
+  #allDestinations = null;
+
+  constructor({ tripEventsListComponent, onDataChange, onModeChange, allOffers, allDestinations }) {
     this.#tripEventsListComponent = tripEventsListComponent;
     this.#handleDataChange = onDataChange; //получаем из основного презентера обработчик обновления точки маршрута
     this.#handleModeChange = onModeChange; //обработчик смены режима с просмотра на редактирование и обратно
+    this.#allOffers = allOffers;
+    this.#allDestinations = allDestinations;
   }
 
   init(event) {
@@ -44,6 +49,8 @@ export default class EventPresenter {
       event: this.#event,
       onRollupButtonClick: this.#handleRollupButtonInEditFormClick,
       onFormSubmit: this.#handleFormSubmit,
+      allOffers: this.#allOffers,
+      allDestinations: this.#allDestinations,
     });
 
     // Проверяем был ли вызван метод init() ранее
