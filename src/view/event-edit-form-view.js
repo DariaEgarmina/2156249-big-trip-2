@@ -43,8 +43,10 @@ const createAllDestinationsTemplate = (allDestinations) =>
 
 
 const createEventEditFormTemplate = (event, allDestinations) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, destinationInfo, allOffers } = event;
-  const { name, description, pictures } = destinationInfo;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destination } = event;
+  // const { name, description, pictures } = destinationInfo;
+
+  const destinationInfoByName = allDestinations.find((item) => item.name === destination);
 
   return (
     `<li class="trip-events__item">
@@ -113,7 +115,7 @@ const createEventEditFormTemplate = (event, allDestinations) => {
               <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationInfoByName.name}" list="destination-list-1">
 
               ${createAllDestinationsTemplate(allDestinations)}
             </div>
@@ -146,9 +148,9 @@ const createEventEditFormTemplate = (event, allDestinations) => {
 
             <section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-              <p class="event__destination-description">${description}</p>
+              <p class="event__destination-description">${destinationInfoByName.description}</p>
 
-              ${createPhotoListTemplate(pictures)}
+              ${createPhotoListTemplate(destinationInfoByName.pictures)}
             </section>
           </section>
         </form>
@@ -221,9 +223,6 @@ export default class EventEditFormView extends AbstractStatefulView {
 
   #destinationChangeHandler = (evt) => {
     const value = evt.target.value;
-
-    //const destinationByName = this.#allDestinations.find((destination) => destination.name === value);
-    //const newDescription = destinationByName.description;
 
     this.updateElement({
       destination: value,
