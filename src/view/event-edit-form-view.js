@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeEventDate } from '../utils/date.js';
 import { createPhotoListTemplate } from './event-create-form-view.js';
 
@@ -35,7 +35,7 @@ const createOfferListTemplate = (offers, checkedOffers) => {
 };
 
 const createEventEditFormTemplate = (event) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, destinationInfo, allOffers} = event;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, destinationInfo, allOffers } = event;
   const { name, description, pictures } = destinationInfo;
 
   return (
@@ -151,38 +151,61 @@ const createEventEditFormTemplate = (event) => {
   );
 };
 
-export default class EventEditFormView extends AbstractView {
-  #event = {};
-
+export default class EventEditFormView extends AbstractStatefulView {
+  #event = null;
   #handleRollupButtonClick = null;
   #handleFormSubmit = null;
 
   constructor({ event = {}, onRollupButtonClick, onFormSubmit } = {}) {
     super();
     this.#event = event;
+    this._setState(event);
 
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFormSubmit = onFormSubmit;
 
+    this._restoreHandlers();
+  }
+
+  get template() {
+    return createEventEditFormTemplate(this._state);
+  }
+
+  _restoreHandlers() {
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#formSubmitHandler);
-  }
-
-  get template() {
-    return createEventEditFormTemplate(this.#event);
+    this.element.querySelector('.event__type-group')
+      .addEventListener('click', this.#typeChangeHandler);
   }
 
   #rollupButtonClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleRollupButtonClick(this.#event);
+    this.#handleRollupButtonClick(this.#event); // !!! передаю изначальные данные, чтобы при закрытии формы на кнопку свернуть, изменения не сохранялись
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(); // !!!пока сюда ничего не передаю и не меняю карточку точки маршрута после изменений в форме редактирования
   };
+
+  #typeChangeHandler = (evt) => {
+    const value = evt.target.value;
+    if (value) {
+      this.updateElement({
+        type: evt.target.value,
+      });
+    }
+  };
+
+  static parseEventToState(event) {
+    return { ...event };
+  }
+
+  static parseStateToEvent(state) {
+    return { ...state };
+  }
 }
 
 export { createOfferListTemplate };
