@@ -216,6 +216,7 @@ export default class EventEditFormView extends AbstractStatefulView {
     this.updateElement({
       type: value,
       allOffers: [...offersByType],
+      checkedOffers: [],
     });
   };
 
