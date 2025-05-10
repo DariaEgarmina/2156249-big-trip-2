@@ -31,8 +31,8 @@ const makeEventFavorite = (isFavorite) => {
   return favoriteClassName;
 };
 
-const createEventTemplate = (event, checkedOffers) => {
-  const { type, destination, basePrice, dateFrom, dateTo, isFavorite } = event;
+const createEventTemplate = (event) => {
+  const { type, destination, basePrice, dateFrom, dateTo, isFavorite, checkedOffers } = event;
 
   const date = humanizeEventDate(dateFrom, DateFormat.DAY_MONTH);
   const timeFrom = humanizeEventTime(dateFrom);
@@ -78,14 +78,12 @@ const createEventTemplate = (event, checkedOffers) => {
 
 export default class EventView extends AbstractView {
   #event = {};
-  #checkedOffers = [];
   #handleRollupButtonClick = null;
   #handleFavoriteButtonClick = null;
 
-  constructor({ event = {}, checkedOffers = [], onRollupButtonClick, onFavoriteButtonClick} = {}) {
+  constructor({ event = {}, onRollupButtonClick, onFavoriteButtonClick} = {}) {
     super();
     this.#event = event;
-    this.#checkedOffers = checkedOffers;
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFavoriteButtonClick = onFavoriteButtonClick; //получаем обработчик нажатия на кнопку избранное
 
@@ -96,7 +94,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventTemplate(this.#event, this.#checkedOffers);
+    return createEventTemplate(this.#event);
   }
 
   #rollupButtonClickHandler = (evt) => {
