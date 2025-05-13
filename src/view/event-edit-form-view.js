@@ -2,6 +2,9 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeEventDate } from '../utils/date.js';
 import { createPhotoListTemplate } from './event-create-form-view.js';
 
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
 const createOfferTemplate = (offer, checkedOffers) => {
   const { id, title, price } = offer;
   const isChecked = checkedOffers.some((item) => item.id === id) ? 'checked' : '';
@@ -164,6 +167,8 @@ export default class EventEditFormView extends AbstractStatefulView {
   #allOffers = null;
   #allDestinations = null;
 
+  #datepicker = null;
+
   constructor({ event = {}, onRollupButtonClick, onFormSubmit, allOffers = [], allDestinations = [] } = {}) {
     super();
     this.#event = event;
@@ -182,6 +187,15 @@ export default class EventEditFormView extends AbstractStatefulView {
     return createEventEditFormTemplate(this._state, this.#allDestinations);
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  }
+
   _restoreHandlers() {
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
@@ -191,6 +205,9 @@ export default class EventEditFormView extends AbstractStatefulView {
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
+
+    this.#setDatepicker('start');
+    this.#setDatepicker('end');
   }
 
   #rollupButtonClickHandler = (evt) => {
@@ -238,6 +255,24 @@ export default class EventEditFormView extends AbstractStatefulView {
       }
     });
   };
+
+  #dueDateChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dueDate: userDate,
+    });
+  };
+
+  #setDatepicker(timeType) {
+    this.#datepicker = flatpickr(
+      this.element.querySelector(`#event-${timeType}-time-1`),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        defaultDate: this._state.dueDate,
+        onChange: this.#dueDateChangeHandler,
+      },
+    );
+  }
 
   static parseEventToState(event) {
     return { ...event };
