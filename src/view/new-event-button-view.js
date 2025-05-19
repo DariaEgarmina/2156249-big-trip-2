@@ -20,7 +20,6 @@ export default class NewEventButtonView extends AbstractView {
 
   #newEventButtonClickHandler = (evt) => {
     evt.preventDefault();
-    console.log('click');
-    // this.#handleNewEventButtonClick();
+    this.#handleNewEventButtonClick();
   };
 }
