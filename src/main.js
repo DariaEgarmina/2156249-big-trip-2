@@ -1,5 +1,5 @@
-import NewEventButtonView from './view/new-event-button-view.js';
 import FiltersView from './view/filters-view.js';
+import HeaderControlsPresenter from './presenter/header-controls-presenter.js';
 import TripEventsPresenter from './presenter/trip-events-presenter.js';
 import { render } from './framework/render.js';
 import PointsModel from './model/points-model.js';
@@ -11,6 +11,10 @@ const tripEventsContainer = document.querySelector('.trip-events');
 
 const pointsModel = new PointsModel();
 
+const headerControlsPresenter = new HeaderControlsPresenter({
+  headerControlsContainer: headerControlsContainer,
+});
+
 const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   pointsModel: pointsModel,
@@ -18,7 +22,7 @@ const tripEventsPresenter = new TripEventsPresenter({
 
 const filters = generateFilter(pointsModel.points);
 
-render (new NewEventButtonView(), headerControlsContainer);
 render(new FiltersView({filters}), filtersContainer);
 
+headerControlsPresenter.init();
 tripEventsPresenter.init();
