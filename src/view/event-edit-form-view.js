@@ -309,4 +309,4 @@ export default class EventEditFormView extends AbstractStatefulView {
   }
 }
 
-export { createOfferListTemplate };
+export { createOfferListTemplate, createAllDestinationsTemplate };

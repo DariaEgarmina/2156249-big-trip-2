@@ -1,5 +1,8 @@
-import AbstractView from '../framework/view/abstract-view.js';
-import { createOfferListTemplate } from './event-edit-form-view.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import { createOfferListTemplate, createAllDestinationsTemplate } from './event-edit-form-view.js';
 import { humanizeEventDate } from '../utils/date.js';
 
 const createPhotoTemplate = (photo) => {
@@ -24,10 +27,9 @@ const createPhotoListTemplate = (photos) => {
   );
 };
 
-const createEventCreateFormTemplate = (event, destination, offer, checkedOffers) => {
-  const { type, dateFrom, dateTo } = event;
-  const { name, description, pictures } = destination;
-  const { offers } = offer;
+const createEventCreateFormTemplate = (event, allDestinations) => {
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destination, destinationInfo } = event;
+  const { description, pictures } = destinationInfo;
 
   return (
     `<li class="trip-events__item">
@@ -96,12 +98,9 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
-            <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
-            </datalist>
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+
+            ${createAllDestinationsTemplate(allDestinations)}
           </div>
 
           <div class="event__field-group  event__field-group--time">
@@ -117,7 +116,7 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -125,7 +124,7 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
         </header>
         <section class="event__details">
 
-          ${createOfferListTemplate(offers, checkedOffers)}
+          ${createOfferListTemplate(allOffers, checkedOffers)}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -139,22 +138,144 @@ const createEventCreateFormTemplate = (event, destination, offer, checkedOffers)
   );
 };
 
-export default class EventCreateFormView extends AbstractView {
-  #event = {};
-  #destination = {};
-  #offer = {};
-  #checkedOffers = [];
+export default class EventCreateFormView extends AbstractStatefulView {
+  #event = null;
+  #handleFormSubmit = null;
 
-  constructor({ event = {}, destination = {}, offer = {}, checkedOffers = [] } = {}) {
+  #allOffers = null;
+  #allDestinations = null;
+
+  #startDatepicker = null;
+  #endDatepicker = null;
+
+  constructor({ event = {},onFormSubmit, allOffers = [], allDestinations = [] } = {}) {
     super();
     this.#event = event;
-    this.#destination = destination;
-    this.#offer = offer;
-    this.#checkedOffers = checkedOffers;
+    this._setState(event);
+
+    this.#allOffers = allOffers;
+    this.#allDestinations = allDestinations;
+
+    this.#handleFormSubmit = onFormSubmit;
+
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEventCreateFormTemplate(this.#event, this.#destination, this.#offer, this.#checkedOffers);
+    return createEventCreateFormTemplate(this._state, this.#allDestinations);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#startDatepicker) {
+      this.#startDatepicker.destroy();
+      this.#startDatepicker = null;
+    }
+
+    if (this.#endDatepicker) {
+      this.#endDatepicker.destroy();
+      this.#endDatepicker = null;
+    }
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('.event--edit')
+      .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__type-group')
+      .addEventListener('click', this.#typeChangeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+
+    this.#setStartDatepicker();
+    this.#setEndDatepicker();
+  }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #typeChangeHandler = (evt) => {
+    const value = evt.target.value;
+    if (!value) {
+      return;
+    }
+
+    evt.preventDefault();
+
+    const offersByType = this.#allOffers.find((offer) => offer.type === value).offers;
+
+    this.updateElement({
+      type: value,
+      allOffers: [...offersByType],
+      checkedOffers: [],
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    const value = evt.target.value;
+
+    const newDestination = this.#allDestinations.find((item) => item.name === value);
+
+    this.updateElement({
+      destination: value,
+      id: newDestination.id,
+      destinationInfo: {
+        id: newDestination.id,
+        description: newDestination.description,
+        name: newDestination.name,
+        pictures: [...newDestination.pictures],
+      }
+    });
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
+  #setStartDatepicker() {
+    this.#startDatepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        maxDate: this._state.dateTo,
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+  }
+
+  #setEndDatepicker() {
+    this.#endDatepicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        minDate: this._state.dateFrom,
+        defaultDate: this._state.dateTo,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
+  }
+
+
+  static parseEventToState(event) {
+    return { ...event };
+  }
+
+  static parseStateToEvent(state) {
+    return { ...state };
   }
 }
 
