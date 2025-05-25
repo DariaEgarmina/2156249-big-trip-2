@@ -3,14 +3,11 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
-import { updateItem } from '../utils/common.js';
 import { SortType } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #pointsModel = null;
-
-  #tripEvents = []; //свойство, куда мы сохраняем все точки маршрута из модели
 
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = new NoEventView();
@@ -19,7 +16,6 @@ export default class TripEventsPresenter {
   #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
 
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
-  #sourcedTripEvents = []; // свойство для хранения копии массива задач ДО СОРТИРОВКИ
 
   #allOffers = null;
   #allDestinations = null;
@@ -30,12 +26,19 @@ export default class TripEventsPresenter {
   }
 
   get tripEvents() {
+    switch (this.#currentSortType) {
+      case SortType.PRICE:
+        return [...this.#pointsModel.tripEvents].sort(sortEventsByPrice);
+      case SortType.TIME:
+        return [...this.#pointsModel.tripEvents].sort(sortEventsByTime);
+      case SortType.DAY:
+        return this.#pointsModel.tripEvents;
+    }
+
     return this.#pointsModel.tripEvents;
   }
 
   init() {
-    this.#tripEvents = [...this.#pointsModel.tripEvents];
-    this.#sourcedTripEvents = [...this.#pointsModel.tripEvents]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
     this.#allOffers = this.#pointsModel.offers;
     this.#allDestinations = this.#pointsModel.destinations;
 
@@ -49,28 +52,10 @@ export default class TripEventsPresenter {
 
   //метод-обработчик обновления точки маршрута
   #handleEventChange = (updatedEvent) => {
-    this.#tripEvents = updateItem(this.#tripEvents, updatedEvent); //обновляем точку маршрута в свойстве-копии точек маршрута из модели
-    this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent); //не забываем обновить задачу также в свойстве для хранения копии массива задач ДО СОРТИРОВКИ
     this.#eventPresenters
       .get(updatedEvent.pointId)
       .init(updatedEvent);
   };
-
-  //метод для непосредственной сортировки событий
-  #sortEvents(sortType) {
-    switch (sortType) {
-      case SortType.PRICE:
-        this.#tripEvents.sort(sortEventsByPrice); //сортируем массив свойства this.#tripEvents, куда мы сохраняем все точки маршрута из модели
-        break;
-      case SortType.TIME:
-        this.#tripEvents.sort(sortEventsByTime);
-        break;
-      case SortType.DAY:
-        this.#tripEvents = [... this.#sourcedTripEvents]; //возвращаем свойство this.#tripEvents к исходному виду
-    }
-
-    this.#currentSortType = sortType;
-  }
 
   //метод-обработчик для клика по кнопкам сортировки
   #handleSortTypeChange = (sortType) => {
@@ -79,7 +64,8 @@ export default class TripEventsPresenter {
       return;
     }
 
-    this.#sortEvents(sortType); //сортируем задачи
+    this.#currentSortType = sortType;
+
     this.#clearSort(this.#sortComponent); //удаляем старую вьюшку сортировки (чтобы можно было добавить checked нужной кнопке)
     this.#renderSort(); //рендерим новую
     this.#clearEventsList(); //удаляем ранее отрисованный список задач в старом порядке
@@ -114,8 +100,8 @@ export default class TripEventsPresenter {
     this.#eventPresenters.set(event.pointId, eventPresenter); //Добавляем в коллекцию созданный презентер
   }
 
-  #renderEvents() {
-    this.#tripEvents.forEach((event) => this.#renderEvent(event));
+  #renderEvents(tripEvents) {
+    tripEvents.forEach((event) => this.#renderEvent(event));
   }
 
   #renderNoEvent() {
@@ -131,11 +117,11 @@ export default class TripEventsPresenter {
   #renderEventsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    if (!this.#tripEvents.length) {
+    if (!this.tripEvents.length) {
       this.#renderNoEvent();
     }
 
-    this.#renderEvents();
+    this.#renderEvents(this.tripEvents);
   }
 
   #renderEventsListAndSort() {
