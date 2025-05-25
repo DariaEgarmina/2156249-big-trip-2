@@ -19,13 +19,18 @@ export default class EventPresenter {
   #handleDataChange = null;
   #handleModeChange = null; //обработчик смены режима с просмотра на редактирование и обратно
 
-  constructor({ tripEventsListComponent, onDataChange, onModeChange }) {
+  #allOffers = null;
+  #allDestinations = null;
+
+  constructor({ tripEventsListComponent, onDataChange, onModeChange, allOffers, allDestinations }) {
     this.#tripEventsListComponent = tripEventsListComponent;
     this.#handleDataChange = onDataChange; //получаем из основного презентера обработчик обновления точки маршрута
     this.#handleModeChange = onModeChange; //обработчик смены режима с просмотра на редактирование и обратно
+    this.#allOffers = allOffers;
+    this.#allDestinations = allDestinations;
   }
 
-  init(event, destination, offer, checkedOffers) {
+  init(event) {
     this.#event = event;
 
     // Проверяем был ли вызван метод init() ранее,
@@ -36,19 +41,16 @@ export default class EventPresenter {
 
     this.#eventComponent = new EventView({
       event: this.#event,
-      checkedOffers,
       onRollupButtonClick: this.#handleRollupButtonClick,
       onFavoriteButtonClick: this.#handleFavoriteButtonClick,
     });
 
     this.#eventEditComponent = new EventEditFormView({
       event: this.#event,
-      destination,
-      offer,
-      checkedOffers,
-
       onRollupButtonClick: this.#handleRollupButtonInEditFormClick,
       onFormSubmit: this.#handleFormSubmit,
+      allOffers: this.#allOffers,
+      allDestinations: this.#allDestinations,
     });
 
     // Проверяем был ли вызван метод init() ранее
