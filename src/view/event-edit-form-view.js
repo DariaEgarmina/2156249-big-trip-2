@@ -249,6 +249,11 @@ export default class EventEditFormView extends AbstractStatefulView {
 
     const newDestination = this.#allDestinations.find((item) => item.name === value);
 
+    //подумать, как сделать, когда пункта назначения нет в списке
+    if(!newDestination) {
+      return;
+    }
+
     this.updateElement({
       destination: value,
       id: newDestination.id,
