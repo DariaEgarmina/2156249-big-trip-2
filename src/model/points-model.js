@@ -36,7 +36,7 @@ export default class PointsModel {
     return offerByType.offers.filter((item) => offerIds.find((id) => item.id === id));
   }
 
-  getTripEvents() {
+  get tripEvents() {
     const allPoints = this.points;
 
     const tripEvents = allPoints.map((point) => {
