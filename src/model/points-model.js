@@ -7,9 +7,9 @@ const POINTS_COUNT = 3;
 
 export default class PointsModel extends Observable {
   #points = Array.from({ length: POINTS_COUNT }, getRandomPoint);
-  #tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
   #destinations = mockDestinations;
   #offers = mockOffers;
+  #tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
 
   get points() {
     return this.#points;

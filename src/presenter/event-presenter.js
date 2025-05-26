@@ -1,6 +1,7 @@
 import EventView from '../view/event-view.js';
 import EventEditFormView from '../view/event-edit-form-view.js';
 import { replace, render, remove } from '../framework/render.js';
+import { UserAction, UpdateType } from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -80,7 +81,7 @@ export default class EventPresenter {
   }
 
   resetView() {
-    if(this.#mode !== Mode.DEFAULT) {
+    if (this.#mode !== Mode.DEFAULT) {
       this.#replaceEditFormToEvent();
       this.#handleDataChange(this.#event); //используем обрабочик для обновления события точки маршрута
     }
@@ -90,6 +91,7 @@ export default class EventPresenter {
     this.#replaceEventToEditForm();
   };
 
+  //???!!! как тут поступить с this.#handleDataChange
   //обработчик нажатия на кнопку свернуть в форме
   //тут используем обрабочик для обновления события точки маршрута
   #handleRollupButtonInEditFormClick = (event) => {
@@ -97,15 +99,26 @@ export default class EventPresenter {
     this.#replaceEditFormToEvent();
   };
 
+  //???!!! как тут поступить с this.#handleDataChange
   //обработчик нажатия на кнопку save в форме
   #handleFormSubmit = () => {
+    this.#handleDataChange(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      this.#event
+    );
     this.#replaceEditFormToEvent();
   };
 
+  //???!!! правильно ли я тут использовала this.#handleDataChange
   //обработчик нажатия на кнопку избранное в карточке
   //тут используем обрабочик для обновления события точки маршрута
   #handleFavoriteButtonClick = () => {
-    this.#handleDataChange({... this.#event, isFavorite: !this.#event.isFavorite}); // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
+    this.#handleDataChange(
+      UserAction.UPDATE_TASK,
+      UpdateType.MINOR,
+      { ... this.#event, isFavorite: !this.#event.isFavorite } // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
+    );
   };
 
   #replaceEventToEditForm() {
@@ -121,6 +134,7 @@ export default class EventPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
+  //???!!! как тут поступить с this.#handleDataChange
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();

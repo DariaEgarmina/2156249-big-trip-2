@@ -23,6 +23,8 @@ export default class TripEventsPresenter {
   constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent); // подписались на изменения модели
   }
 
   get tripEvents() {
@@ -50,11 +52,23 @@ export default class TripEventsPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView()); // метод resetView() меняет форму редактирования на карточку, если режим не равен дефолтному
   };
 
-  //метод-обработчик обновления точки маршрута
-  #handleEventChange = (updatedEvent) => {
-    this.#eventPresenters
-      .get(updatedEvent.pointId)
-      .init(updatedEvent);
+  //метод-обработчик, который реагирует на действия пользователя, на основе которых мы должны вызвать изменения модели
+  #handleViewAction = (actionType, updateType, update) => {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  };
+
+  //метод-обработчик, который будет реагировать на изменения модели. Когда модель будет меняться, она будет рассылать всем своим "подписчикам" "уведомления" об изменениях.
+  // Если trip-events-presenter подпишется на обновления модели, будет срабатывать этот метод-обработчик
+  #handleModelEvent = (updateType, data) => {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
   };
 
   //метод-обработчик для клика по кнопкам сортировки
@@ -89,7 +103,7 @@ export default class TripEventsPresenter {
   #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
-      onDataChange: this.#handleEventChange, //передаем в презентер точки маршрута обработчик обнавления точки маршрута
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange, //передаем в презентер точки маршрута обработчик смены режима с просмотра на редактирование и обратно
       allOffers: this.#allOffers,
       allDestinations: this.#allDestinations,
