@@ -7,11 +7,16 @@ const POINTS_COUNT = 3;
 
 export default class PointsModel extends Observable {
   #points = Array.from({ length: POINTS_COUNT }, getRandomPoint);
+  #tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
   #destinations = mockDestinations;
   #offers = mockOffers;
 
   get points() {
     return this.#points;
+  }
+
+  get tripEvents() {
+    return this.#tripEvents;
   }
 
   get destinations() {
@@ -37,22 +42,58 @@ export default class PointsModel extends Observable {
     return offerByType.offers.filter((item) => offerIds.find((id) => item.id === id));
   }
 
-  get tripEvents() {
-    const allPoints = this.points;
+  convertToTripEvent(point) {
+    const destinationInfo = this.getDestinationById(point.id);
+    const allOffers = this.getOfferByType(point.type);
+    const checkedOffers = this.getOfferById(point.type, point.offers);
+    return {
+      ...point,
+      allOffers: allOffers.offers,
+      checkedOffers: checkedOffers,
+      destinationInfo: destinationInfo,
+    };
+  }
 
-    const tripEvents = allPoints.map((point) => {
-      const destinationInfo = this.getDestinationById(point.id);
-      const allOffers = this.getOfferByType(point.type);
-      const checkedOffers = this.getOfferById(point.type, point.offers);
-      return {
-        ...point,
-        allOffers: allOffers.offers,
-        checkedOffers: checkedOffers,
-        destinationInfo: destinationInfo,
-      };
+  //Метод для обновления точки маршрута - функционал из презентера перенесли в модель
+  updateTripEvent(updateType, update) {
+    const index = this.#tripEvents.findIndex((event) => event.pointId === update.pointId);
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting task');
     }
-    );
 
-    return tripEvents;
+    this.#tripEvents = [
+      ...this.#tripEvents.slice(0, index),
+      update,
+      ...this.#tripEvents.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  // метод для добавления точки маршрута
+  addTripEvent(updateType, update) {
+    this.#tripEvents = [
+      update,
+      ...this.#tripEvents,
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  //метод для удаления точки маршрута
+  deleteTripEvent(updateType, update) {
+    const index = this.#tripEvents.findIndex((task) => task.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting task');
+    }
+
+    this.#tripEvents = [
+      ...this.#tripEvents.slice(0, index),
+      ...this.#tripEvents.slice(index + 1),
+    ];
+
+    this._notify(updateType);
   }
 }
