@@ -105,11 +105,11 @@ export default class EventPresenter {
 
   //???!!! как тут поступить с this.#handleDataChange
   //обработчик нажатия на кнопку save в форме
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (event) => {
     this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
-      this.#event
+      event
     );
     this.#replaceEditFormToEvent();
   };

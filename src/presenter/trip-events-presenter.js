@@ -70,17 +70,17 @@ export default class TripEventsPresenter {
   //метод-обработчик, который будет реагировать на изменения модели. Когда модель будет меняться, она будет рассылать всем своим "подписчикам" "уведомления" об изменениях.
   // Если trip-events-presenter подпишется на обновления модели, будет срабатывать этот метод-обработчик
   #handleModelEvent = (updateType, data) => {
-    // В зависимости от типа изменений решаем, что делать:
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this.#eventPresenters.get(data.pointId).init(data);
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда задача ушла в архив)
+        this.#clearEventsList();
+        this.#renderEventsList();
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (например, при переключении фильтра)
+        this.#clearEventsList({ resetSortType: true });
+        this.#renderEventsList();
         break;
     }
   };
@@ -137,9 +137,13 @@ export default class TripEventsPresenter {
   }
 
   //метод, чтобы очистить весь список точек маршрута
-  #clearEventsList() {
+  #clearEventsList({ resetSortType = false } = {}) {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
 
   #renderEventsList() {

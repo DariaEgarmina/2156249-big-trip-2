@@ -211,6 +211,8 @@ export default class EventEditFormView extends AbstractStatefulView {
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
 
     this.#setStartDatepicker();
     this.#setEndDatepicker();
@@ -223,7 +225,9 @@ export default class EventEditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(); // !!!пока сюда ничего не передаю и не меняю карточку точки маршрута после изменений в форме редактирования
+    // console.log('view - event:', this.#event);
+    // console.log('view - state:', this._state);
+    this.#handleFormSubmit(this._state); //?????
   };
 
   #typeChangeHandler = (evt) => {
@@ -250,7 +254,7 @@ export default class EventEditFormView extends AbstractStatefulView {
     const newDestination = this.#allDestinations.find((item) => item.name === value);
 
     //подумать, как сделать, когда пункта назначения нет в списке
-    if(!newDestination) {
+    if (!newDestination) {
       return;
     }
 
@@ -264,6 +268,22 @@ export default class EventEditFormView extends AbstractStatefulView {
         pictures: [...newDestination.pictures],
       }
     });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const value = evt.target.value;
+
+    if (!value) {
+      this.updateElement({
+        basePrice: 0,
+      });
+    } else {
+      this.updateElement({
+        basePrice: value,
+      });
+    }
   };
 
   #dateFromChangeHandler = ([userDate]) => {
