@@ -95,7 +95,11 @@ export default class EventPresenter {
   //обработчик нажатия на кнопку свернуть в форме
   //тут используем обрабочик для обновления события точки маршрута
   #handleRollupButtonInEditFormClick = (event) => {
-    this.#handleDataChange(event);
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      event
+    );
     this.#replaceEditFormToEvent();
   };
 
@@ -103,7 +107,7 @@ export default class EventPresenter {
   //обработчик нажатия на кнопку save в форме
   #handleFormSubmit = () => {
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
       this.#event
     );
@@ -115,7 +119,7 @@ export default class EventPresenter {
   //тут используем обрабочик для обновления события точки маршрута
   #handleFavoriteButtonClick = () => {
     this.#handleDataChange(
-      UserAction.UPDATE_TASK,
+      UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
       { ... this.#event, isFavorite: !this.#event.isFavorite } // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
     );

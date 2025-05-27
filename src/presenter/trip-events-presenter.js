@@ -3,7 +3,7 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
-import { SortType } from '../const.js';
+import { SortType, UpdateType, UserAction } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
@@ -54,21 +54,35 @@ export default class TripEventsPresenter {
 
   //метод-обработчик, который реагирует на действия пользователя, на основе которых мы должны вызвать изменения модели
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#pointsModel.updateTripEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#pointsModel.addTripEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#pointsModel.deleteTripEvent(updateType, update);
+        break;
+    }
   };
 
   //метод-обработчик, который будет реагировать на изменения модели. Когда модель будет меняться, она будет рассылать всем своим "подписчикам" "уведомления" об изменениях.
   // Если trip-events-presenter подпишется на обновления модели, будет срабатывать этот метод-обработчик
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
     // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this.#eventPresenters.get(data.pointId).init(data);
+        break;
+      case UpdateType.MINOR:
+        // - обновить список (например, когда задача ушла в архив)
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        break;
+    }
   };
 
   //метод-обработчик для клика по кнопкам сортировки
