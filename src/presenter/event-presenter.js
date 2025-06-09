@@ -143,7 +143,11 @@ export default class EventPresenter {
     if (evt.key === 'Escape') {
       evt.preventDefault();
       this.#replaceEditFormToEvent();
-      this.#handleDataChange(this.#event);
+      this.#handleDataChange(
+        UserAction.UPDATE_EVENT,
+        UpdateType.MINOR,
+        this.#event
+      );
     }
   };
 }
