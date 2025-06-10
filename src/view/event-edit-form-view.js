@@ -163,6 +163,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   #event = null;
   #handleRollupButtonClick = null;
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
 
   #allOffers = null;
   #allDestinations = null;
@@ -170,7 +171,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   #startDatepicker = null;
   #endDatepicker = null;
 
-  constructor({ event = {}, onRollupButtonClick, onFormSubmit, allOffers = [], allDestinations = [] } = {}) {
+  constructor({ event = {}, onRollupButtonClick, onFormSubmit, onDeleteClick, allOffers = [], allDestinations = [] } = {}) {
     super();
     this.#event = event;
     this._setState(event);
@@ -180,6 +181,7 @@ export default class EventEditFormView extends AbstractStatefulView {
 
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -213,6 +215,8 @@ export default class EventEditFormView extends AbstractStatefulView {
       .addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceChangeHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
 
     this.#setStartDatepicker();
     this.#setEndDatepicker();
@@ -228,6 +232,13 @@ export default class EventEditFormView extends AbstractStatefulView {
     // console.log('view - event:', this.#event);
     // console.log('view - state:', this._state);
     this.#handleFormSubmit(this._state); //?????
+  };
+
+  //нужно понять что сюда передавать this.#event или this._state
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    //console.log('Hi i m deleteClickHandler');
+    // this.#handleDeleteClick(???);
   };
 
   #typeChangeHandler = (evt) => {
