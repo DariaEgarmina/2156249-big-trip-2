@@ -50,6 +50,7 @@ export default class EventPresenter {
       event: this.#event,
       onRollupButtonClick: this.#handleRollupButtonInEditFormClick,
       onFormSubmit: this.#handleFormSubmit,
+      onDeleteClick: this.#handleDeleteClick,
       allOffers: this.#allOffers,
       allDestinations: this.#allDestinations,
     });
@@ -123,6 +124,15 @@ export default class EventPresenter {
       UpdateType.MINOR,
       { ... this.#event, isFavorite: !this.#event.isFavorite } // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
     );
+  };
+
+  #handleDeleteClick = (event) => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event
+    );
+    this.#replaceEditFormToEvent();
   };
 
   #replaceEventToEditForm() {

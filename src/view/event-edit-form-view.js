@@ -238,7 +238,8 @@ export default class EventEditFormView extends AbstractStatefulView {
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
     //console.log('Hi i m deleteClickHandler');
-    // this.#handleDeleteClick(???);
+    // this.#handleDeleteClick(???); <-- мы должны сюда передать состояние, преобразованное в задачу
+    //чтобы её потом можно было удалить и необходимые данные получить
   };
 
   #typeChangeHandler = (evt) => {
