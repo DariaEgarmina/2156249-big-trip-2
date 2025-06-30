@@ -132,7 +132,6 @@ export default class EventPresenter {
       UpdateType.MINOR,
       event
     );
-    this.#replaceEditFormToEvent();
   };
 
   #replaceEventToEditForm() {

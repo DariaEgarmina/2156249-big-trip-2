@@ -234,12 +234,9 @@ export default class EventEditFormView extends AbstractStatefulView {
     this.#handleFormSubmit(this._state); //?????
   };
 
-  //нужно понять что сюда передавать this.#event или this._state
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    //console.log('Hi i m deleteClickHandler');
-    // this.#handleDeleteClick(???); <-- мы должны сюда передать состояние, преобразованное в задачу
-    //чтобы её потом можно было удалить и необходимые данные получить
+    this.#handleDeleteClick(this.#event); // <-- передаем сюда событие, которые изначально было в карточке
   };
 
   #typeChangeHandler = (evt) => {
