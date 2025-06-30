@@ -236,7 +236,7 @@ export default class EventEditFormView extends AbstractStatefulView {
 
   #deleteClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleDeleteClick(this.#event); // <-- передаем сюда событие, которые изначально было в карточке
+    this.#handleDeleteClick(this.#event); // <-- передаю событие, которые изначально было в карточке
   };
 
   #typeChangeHandler = (evt) => {
