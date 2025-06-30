@@ -4,11 +4,17 @@ import TripEventsPresenter from './presenter/trip-events-presenter.js';
 import { render } from './framework/render.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
-import { generateFilter } from './mock/filter.js';
 
 const headerControlsContainer = document.querySelector('.trip-main');
 const filtersContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
+
+const filters = [
+  {
+    type: 'everything',
+    count: 0,
+  },
+];
 
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
@@ -22,9 +28,11 @@ const tripEventsPresenter = new TripEventsPresenter({
   pointsModel: pointsModel,
 });
 
-const filters = generateFilter(pointsModel.points);
-
-render(new FiltersView({filters}), filtersContainer);
+render(new FiltersView({
+  filters,
+  currentFilterType: 'everything',
+  onFilterTypeChange: () => { },
+}), filtersContainer);
 
 headerControlsPresenter.init();
 tripEventsPresenter.init();
