@@ -3,7 +3,7 @@ import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
-import { SortType, UpdateType, UserAction } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
 export default class TripEventsPresenter {
@@ -12,12 +12,13 @@ export default class TripEventsPresenter {
   #filterModel = null;
 
   #tripEventsListComponent = new TripEventsListView();
-  #noEventComponent = new NoEventView();
+  #noEventComponent = null;
   #sortComponent = null;
 
   #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
 
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
+  #filterType = FilterType.EVERYTHING;
 
   #allOffers = null;
   #allDestinations = null;
@@ -32,9 +33,9 @@ export default class TripEventsPresenter {
   }
 
   get tripEvents() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const tripEvents = this.#pointsModel.tripEvents;
-    const filteredTripEvents = filter[filterType](tripEvents);
+    const filteredTripEvents = filter[this.#filterType](tripEvents);
 
     switch (this.#currentSortType) {
       case SortType.PRICE:
@@ -141,13 +142,21 @@ export default class TripEventsPresenter {
   }
 
   #renderNoEvent() {
-    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+    this.#noEventComponent = new NoEventView({
+      filterType: this.#filterType
+    });
+
+    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.BEFOREEND);
   }
 
   //метод, чтобы очистить весь список точек маршрута
   #clearEventsList({ resetSortType = false } = {}) {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
+    if(this.#noEventComponent) {
+      remove(this.#noEventComponent);
+    }
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
