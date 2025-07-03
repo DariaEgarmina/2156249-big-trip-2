@@ -5,9 +5,11 @@ import SortView from '../view/sort-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
 import { SortType, UpdateType, UserAction } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
+import { filter } from '../utils/filter.js';
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #pointsModel = null;
+  #filterModel = null;
 
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = new NoEventView();
@@ -20,24 +22,30 @@ export default class TripEventsPresenter {
   #allOffers = null;
   #allDestinations = null;
 
-  constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
+  constructor({ tripEventsContainer, pointsModel, filterModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
+    this.#filterModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent); // подписались на изменения модели
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get tripEvents() {
+    const filterType = this.#filterModel.filter;
+    const tripEvents = this.#pointsModel.tripEvents;
+    const filteredTripEvents = filter[filterType](tripEvents);
+
     switch (this.#currentSortType) {
       case SortType.PRICE:
-        return [...this.#pointsModel.tripEvents].sort(sortEventsByPrice);
+        return [...filteredTripEvents].sort(sortEventsByPrice);
       case SortType.TIME:
-        return [...this.#pointsModel.tripEvents].sort(sortEventsByTime);
+        return [...filteredTripEvents].sort(sortEventsByTime);
       case SortType.DAY:
-        return this.#pointsModel.tripEvents;
+        return filteredTripEvents;
     }
 
-    return this.#pointsModel.tripEvents;
+    return filteredTripEvents;
   }
 
   init() {

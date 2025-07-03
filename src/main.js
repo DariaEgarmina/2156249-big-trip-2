@@ -24,6 +24,7 @@ const filterPresenter = new FilterPresenter({
 const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   pointsModel: pointsModel,
+  filterModel: filterModel,
 });
 
 //headerControlsPresenter.init();
