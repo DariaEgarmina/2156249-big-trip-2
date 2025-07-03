@@ -1,26 +1,24 @@
-import FiltersView from './view/filters-view.js';
-import HeaderControlsPresenter from './presenter/header-controls-presenter.js';
+//import HeaderControlsPresenter from './presenter/header-controls-presenter.js';
 import TripEventsPresenter from './presenter/trip-events-presenter.js';
-import { render } from './framework/render.js';
+import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 
-const headerControlsContainer = document.querySelector('.trip-main');
-const filtersContainer = document.querySelector('.trip-controls__filters');
+//const headerControlsContainer = document.querySelector('.trip-main');
+const filterContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
-
-const filters = [
-  {
-    type: 'everything',
-    count: 0,
-  },
-];
 
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
 
-const headerControlsPresenter = new HeaderControlsPresenter({
-  headerControlsContainer: headerControlsContainer,
+// const headerControlsPresenter = new HeaderControlsPresenter({
+//   headerControlsContainer: headerControlsContainer,
+// });
+
+const filterPresenter = new FilterPresenter({
+  filterContainer: filterContainer,
+  filterModel: filterModel,
+  pointsModel: pointsModel,
 });
 
 const tripEventsPresenter = new TripEventsPresenter({
@@ -28,11 +26,6 @@ const tripEventsPresenter = new TripEventsPresenter({
   pointsModel: pointsModel,
 });
 
-render(new FiltersView({
-  filters,
-  currentFilterType: 'everything',
-  onFilterTypeChange: () => { },
-}), filtersContainer);
-
-headerControlsPresenter.init();
+//headerControlsPresenter.init();
+filterPresenter.init();
 tripEventsPresenter.init();
