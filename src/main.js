@@ -24,7 +24,13 @@ const tripEventsPresenter = new TripEventsPresenter({
   filterModel: filterModel,
 });
 
-const newEventButtonComponent = new NewEventButtonView();
+const handleNewEventButtonClick = () => {
+  console.log('Я работаю! Ура!');
+};
+
+const newEventButtonComponent = new NewEventButtonView({
+  onNewEventButtonClick: handleNewEventButtonClick,
+});
 
 render(newEventButtonComponent, headerControlsContainer);
 
