@@ -1,19 +1,16 @@
-//import HeaderControlsPresenter from './presenter/header-controls-presenter.js';
+import { render } from './framework/render.js';
 import TripEventsPresenter from './presenter/trip-events-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
+import NewEventButtonView from './view/new-event-button-view.js';
 
-//const headerControlsContainer = document.querySelector('.trip-main');
+const headerControlsContainer = document.querySelector('.trip-main');
 const filterContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 
 const pointsModel = new PointsModel();
 const filterModel = new FilterModel();
-
-// const headerControlsPresenter = new HeaderControlsPresenter({
-//   headerControlsContainer: headerControlsContainer,
-// });
 
 const filterPresenter = new FilterPresenter({
   filterContainer: filterContainer,
@@ -27,6 +24,9 @@ const tripEventsPresenter = new TripEventsPresenter({
   filterModel: filterModel,
 });
 
-//headerControlsPresenter.init();
+const newEventButtonComponent = new NewEventButtonView();
+
+render(newEventButtonComponent, headerControlsContainer);
+
 filterPresenter.init();
 tripEventsPresenter.init();

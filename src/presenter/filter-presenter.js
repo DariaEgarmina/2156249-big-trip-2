@@ -48,7 +48,7 @@ export default class FilterPresenter {
   }
 
   #handleModelEvent = () => {
-    this.init();
+    this.init(); //вызываем переинициализацию нашего презентера
   };
 
   #handleFilterTypeChange = (filterType) => {
