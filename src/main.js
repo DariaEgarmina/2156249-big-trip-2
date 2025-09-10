@@ -22,15 +22,20 @@ const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   pointsModel: pointsModel,
   filterModel: filterModel,
+  onNewEventDestroy: handleNewTaskFormClose,
 });
-
-const handleNewEventButtonClick = () => {
-  console.log('Я работаю! Ура!');
-};
 
 const newEventButtonComponent = new NewEventButtonView({
   onNewEventButtonClick: handleNewEventButtonClick,
 });
+
+function handleNewTaskFormClose () {
+  newEventButtonComponent.element.disabled = false;
+}
+
+function handleNewEventButtonClick () {
+  tripEventsPresenter.createTripEvent();
+}
 
 render(newEventButtonComponent, headerControlsContainer);
 

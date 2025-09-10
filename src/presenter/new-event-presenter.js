@@ -1,56 +1,71 @@
-// export default class NewEventPresenter {
-//   #filterContainer = null;
-//   #filterModel = null;
-//   #pointsModel = null;
+import { nanoid } from 'nanoid';
+import EventCreateFormView from '../view/event-create-form-view.js';
+import { RenderPosition, render, remove } from '../framework/render.js';
+import { UserAction, UpdateType } from '../const.js';
 
-//   #filterComponent = null;
 
-//   constructor({ filterContainer, filterModel, pointsModel }) {
-//     this.#filterContainer = filterContainer;
-//     this.#filterModel = filterModel;
-//     this.#pointsModel = pointsModel;
+export default class NewEventPresenter {
+  #tripEventsListComponent = null;
+  #newEventComponent = null;
 
-//     this.#pointsModel.addObserver(this.#handleModelEvent); // еще раз разобраться как работает эта часть
-//     this.#filterModel.addObserver(this.#handleModelEvent);
-//   }
+  #handleDataChange = null;
+  #handleDestroy = null;
 
-//   get filters() {
-//     const tripEvents = this.#pointsModel.tripEvents;
+  constructor({ tripEventsListComponent, onDataChange, onDestroy }) {
+    this.#tripEventsListComponent = tripEventsListComponent;
+    this.#handleDataChange = onDataChange;
+    this.#handleDestroy = onDestroy;
+  }
 
-//     return Object.values(FilterType).map((type) => ({
-//       type,
-//       count: filter[type](tripEvents).length
-//     }));
-//   }
+  init() {
+    if (this.#newEventComponent !== null) {
+      return;
+    }
 
-//   init() {
-//     const filters = this.filters;
-//     const prevFilterComponent = this.#filterComponent;
+    this.#newEventComponent = new EventCreateFormView({
+      onFormSubmit: this.#handleFormSubmit,
+      onDeleteClick: this.#handleDeleteClick,
+      // allOffers: this.#allOffers,
+      // allDestinations: this.#allDestinations,
+    });
 
-//     this.#filterComponent = new FiltersView({
-//       filters: filters,
-//       currentFilterType: this.#filterModel.filter,
-//       onFilterTypeChange: this.#handleFilterTypeChange,
-//     });
+    render(this.#newEventComponent, this.#tripEventsListComponent, RenderPosition.AFTERBEGIN);
 
-//     if (prevFilterComponent === null) {
-//       render(this.#filterComponent, this.#filterContainer);
-//       return;
-//     }
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+  }
 
-//     replace(this.#filterComponent, prevFilterComponent);
-//     remove(prevFilterComponent);
-//   }
+  destroy() {
+    if (this.#newEventComponent === null) {
+      return;
+    }
 
-//   #handleModelEvent = () => {
-//     this.init(); //вызываем переинициализацию нашего презентера
-//   };
+    this.#handleDestroy();
 
-//   #handleFilterTypeChange = (filterType) => {
-//     if (this.#filterModel.filter === filterType) {
-//       return;
-//     }
+    remove(this.#newEventComponent);
+    this.#newEventComponent = null;
 
-//     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
-//   };
-// }
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  #handleFormSubmit = (event) => {
+    this.#handleDataChange(
+      UserAction.ADD_EVENT,
+      UpdateType.MINOR,
+
+      { id: nanoid(), ...event },
+
+    );
+    this.destroy();
+  };
+
+  #handleDeleteClick = () => {
+    this.destroy();
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.destroy();
+    }
+  };
+}

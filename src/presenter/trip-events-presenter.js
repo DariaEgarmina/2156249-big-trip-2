@@ -1,4 +1,5 @@
 import EventPresenter from './event-presenter.js';
+import NewEventPresenter from './new-event-presenter.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
@@ -16,6 +17,7 @@ export default class TripEventsPresenter {
   #sortComponent = null;
 
   #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
+  #newEventPresenter = null;
 
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
   #filterType = FilterType.EVERYTHING;
@@ -23,10 +25,16 @@ export default class TripEventsPresenter {
   #allOffers = null;
   #allDestinations = null;
 
-  constructor({ tripEventsContainer, pointsModel, filterModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
+  constructor({ tripEventsContainer, pointsModel, filterModel, onNewEventDestroy }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
+
+    this.#newEventPresenter = new NewEventPresenter({
+      tripEventsListComponent: this.#tripEventsListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewEventDestroy,
+    });
 
     this.#pointsModel.addObserver(this.#handleModelEvent); // подписались на изменения модели
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -56,8 +64,15 @@ export default class TripEventsPresenter {
     this.#renderEventsListAndSort();
   }
 
+  createTripEvent() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newEventPresenter.init();
+  }
+
   //обрабочик для смены режима с просмотра на редактирование и обратно, передаем в презентер точки маршрута
   #handleModeChange = () => {
+    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView()); // метод resetView() меняет форму редактирования на карточку, если режим не равен дефолтному
   };
 
@@ -151,10 +166,11 @@ export default class TripEventsPresenter {
 
   //метод, чтобы очистить весь список точек маршрута
   #clearEventsList({ resetSortType = false } = {}) {
+    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
 
-    if(this.#noEventComponent) {
+    if (this.#noEventComponent) {
       remove(this.#noEventComponent);
     }
 
