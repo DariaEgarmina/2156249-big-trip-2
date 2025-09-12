@@ -30,10 +30,15 @@ export default class TripEventsPresenter {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
+    this.#allOffers = this.#pointsModel.offers;
+    this.#allDestinations = this.#pointsModel.destinations;
+
     this.#newEventPresenter = new NewEventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewEventDestroy,
+      allOffers: this.#allOffers,
+      allDestinations: this.#allDestinations,
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent); // подписались на изменения модели
@@ -58,16 +63,13 @@ export default class TripEventsPresenter {
   }
 
   init() {
-    this.#allOffers = this.#pointsModel.offers;
-    this.#allDestinations = this.#pointsModel.destinations;
-
     this.#renderEventsListAndSort();
   }
 
   createTripEvent() {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#newEventPresenter.init();
+    this.#newEventPresenter.init(this.#pointsModel.blankTripEvent);
   }
 
   //обрабочик для смены режима с просмотра на редактирование и обратно, передаем в презентер точки маршрута

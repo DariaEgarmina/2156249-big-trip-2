@@ -5,28 +5,38 @@ import { UserAction, UpdateType } from '../const.js';
 
 
 export default class NewEventPresenter {
+  #event = null;
+
   #tripEventsListComponent = null;
   #newEventComponent = null;
 
   #handleDataChange = null;
   #handleDestroy = null;
 
-  constructor({ tripEventsListComponent, onDataChange, onDestroy }) {
+  #allOffers = null;
+  #allDestinations = null;
+
+  constructor({ tripEventsListComponent, onDataChange, onDestroy, allOffers, allDestinations }) {
     this.#tripEventsListComponent = tripEventsListComponent;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
+    this.#allOffers = allOffers;
+    this.#allDestinations = allDestinations;
   }
 
-  init() {
+  init(event) {
+    this.#event = event;
+
     if (this.#newEventComponent !== null) {
       return;
     }
 
     this.#newEventComponent = new EventCreateFormView({
+      event: this.#event,
       onFormSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
-      // allOffers: this.#allOffers,
-      // allDestinations: this.#allDestinations,
+      allOffers: this.#allOffers,
+      allDestinations: this.#allDestinations,
     });
 
     render(this.#newEventComponent, this.#tripEventsListComponent, RenderPosition.AFTERBEGIN);
@@ -52,7 +62,10 @@ export default class NewEventPresenter {
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
 
-      { id: nanoid(), ...event },
+      {
+        pointId: nanoid(),
+        ...event,
+      },
 
     );
     this.destroy();

@@ -1,9 +1,8 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-// import { createOfferListTemplate, createAllDestinationsTemplate } from './event-edit-form-view.js';
-// import { humanizeEventDate } from '../utils/date.js';
+import { createOfferListTemplate, createAllDestinationsTemplate } from './event-edit-form-view.js';
+import { humanizeEventDate } from '../utils/date.js';
 
 const createPhotoTemplate = (photo) => {
   const { src, description } = photo;
@@ -27,14 +26,29 @@ const createPhotoListTemplate = (photos) => {
   );
 };
 
-const createEventCreateFormTemplate = () =>
-  `<li class="trip-events__item">
+const createDestinationDescriptionTemplate = (description) => {
+  if (!description) {
+    return '';
+  }
+
+  return (
+    `<h3 class="event__section-title  event__section-title--destination">Destination</h3>
+     <p class="event__destination-description">${description}</p>`
+  );
+};
+
+const createEventCreateFormTemplate = (event, allDestinations) => {
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destination, destinationInfo } = event;
+  const { description, pictures } = destinationInfo;
+
+  return (
+    `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -92,19 +106,19 @@ const createEventCreateFormTemplate = () =>
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              FLIGHT
+              ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="ПУСТО" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
 
-
+            ${createAllDestinationsTemplate(allDestinations)}
           </div>
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="11.06.1988">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeEventDate(dateFrom)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="12.06.1988">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeEventDate(dateTo)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -112,7 +126,7 @@ const createEventCreateFormTemplate = () =>
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="0">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -121,19 +135,21 @@ const createEventCreateFormTemplate = () =>
         <section class="event__details">
 
 
+          ${createOfferListTemplate(allOffers, checkedOffers)}
 
           <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">"ПУСТО"</p>
-
-
+            ${createDestinationDescriptionTemplate(description)}
+            ${createPhotoListTemplate(pictures)}
           </section>
         </section>
       </form>
-    </li>`;
+    </li>`
+  );
+};
 
 export default class EventCreateFormView extends AbstractStatefulView {
-  // #event = null;
+  #event = null;
+
   #handleFormSubmit = null;
   #handleDeleteClick = null;
 
@@ -143,10 +159,12 @@ export default class EventCreateFormView extends AbstractStatefulView {
   #startDatepicker = null;
   #endDatepicker = null;
 
-  constructor({ event = {},onFormSubmit, onDeleteClick, allOffers = [], allDestinations = [] } = {}) {
+  constructor({ event, onFormSubmit, onDeleteClick, allOffers = [], allDestinations = [] } = {}) {
     super();
-    // this.#event = event;
-    this._setState(event); //?? нужно ли нам состояние???
+
+    this.#event = event;
+
+    this._setState(this.#event);
 
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
@@ -182,6 +200,8 @@ export default class EventCreateFormView extends AbstractStatefulView {
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
     this.element.querySelector('.event__reset-btn')
       .addEventListener('click', this.#deleteClickHandler);
 
@@ -191,7 +211,7 @@ export default class EventCreateFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this._state);
   };
 
   #deleteClickHandler = (evt) => {
@@ -201,6 +221,7 @@ export default class EventCreateFormView extends AbstractStatefulView {
 
   #typeChangeHandler = (evt) => {
     const value = evt.target.value;
+
     if (!value) {
       return;
     }
@@ -232,6 +253,22 @@ export default class EventCreateFormView extends AbstractStatefulView {
         pictures: [...newDestination.pictures],
       }
     });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const value = evt.target.value;
+
+    if (!value) {
+      this.updateElement({
+        basePrice: 0,
+      });
+    } else {
+      this.updateElement({
+        basePrice: value,
+      });
+    }
   };
 
   #dateFromChangeHandler = ([userDate]) => {

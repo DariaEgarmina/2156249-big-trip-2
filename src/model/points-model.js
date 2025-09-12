@@ -27,6 +27,53 @@ export default class PointsModel extends Observable {
     return this.#offers;
   }
 
+  get blankTripEvent() {
+    return {
+      type: 'flight',
+      id: '',
+      dateFrom: new Date(),
+      dateTo: new Date(Date.now() + 3600000),
+      destination: '',
+      offers: [],
+      basePrice: 0,
+      isFavorite: false,
+      allOffers: [
+        {
+          id: '61',
+          title: 'Upgrade to a business class',
+          price: 340
+        },
+        {
+          id: '62',
+          title: 'Upgrade to a comfort class',
+          price: 240
+        },
+        {
+          id: '63',
+          title: 'Choose seat',
+          price: 120
+        },
+        {
+          id: '64',
+          title: 'Business launge',
+          price: 90
+        },
+        {
+          id: '65',
+          title: 'Add luggage',
+          price: 73
+        }
+      ],
+      checkedOffers: [],
+      destinationInfo: {
+        description: '',
+        id: '',
+        name: '',
+        pictures: [],
+      },
+    };
+  }
+
   getDestinationById(id) {
     const allDestinations = this.destinations;
     return allDestinations.find((item) => item.id === id);
