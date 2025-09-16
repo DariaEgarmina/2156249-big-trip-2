@@ -196,14 +196,19 @@ export default class EventCreateFormView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__type-group')
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceChangeHandler);
-    this.element.querySelector('.event__reset-btn')
-      .addEventListener('click', this.#deleteClickHandler);
+
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
 
     this.#setStartDatepicker();
     this.#setEndDatepicker();
@@ -269,6 +274,28 @@ export default class EventCreateFormView extends AbstractStatefulView {
         basePrice: value,
       });
     }
+  };
+
+  #offerChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const offerId = evt.target.id;
+    const isChecked = evt.target.checked;
+
+    let updatedOffers = [...this._state.checkedOffers];
+    const offerToUpdate = this._state.allOffers.find((offer) => offer.id === offerId);
+
+    if (isChecked) {
+      if (!updatedOffers.some((offer) => offer.id === offerId)) {
+        updatedOffers.push(offerToUpdate);
+      }
+    } else {
+      updatedOffers = updatedOffers.filter((offer) => offer.id !== offerId);
+    }
+
+    this.updateElement({
+      checkedOffers: updatedOffers
+    });
   };
 
   #dateFromChangeHandler = ([userDate]) => {

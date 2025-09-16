@@ -209,14 +209,19 @@ export default class EventEditFormView extends AbstractStatefulView {
       .addEventListener('click', this.#rollupButtonClickHandler);
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__type-group')
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceChangeHandler);
-    this.element.querySelector('.event__reset-btn')
-      .addEventListener('click', this.#deleteClickHandler);
+
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
 
     this.#setStartDatepicker();
     this.#setEndDatepicker();
@@ -229,9 +234,7 @@ export default class EventEditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    // console.log('view - event:', this.#event);
-    // console.log('view - state:', this._state);
-    this.#handleFormSubmit(this._state); //?????
+    this.#handleFormSubmit(this._state);
   };
 
   #deleteClickHandler = (evt) => {
@@ -295,6 +298,28 @@ export default class EventEditFormView extends AbstractStatefulView {
     }
   };
 
+  #offerChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const offerId = evt.target.id;
+    const isChecked = evt.target.checked;
+
+    let updatedOffers = [...this._state.checkedOffers];
+    const offerToUpdate = this._state.allOffers.find((offer) => offer.id === offerId);
+
+    if (isChecked) {
+      if (!updatedOffers.some((offer) => offer.id === offerId)) {
+        updatedOffers.push(offerToUpdate);
+      }
+    } else {
+      updatedOffers = updatedOffers.filter((offer) => offer.id !== offerId);
+    }
+
+    this.updateElement({
+      checkedOffers: updatedOffers
+    });
+  };
+
   #dateFromChangeHandler = ([userDate]) => {
     this.updateElement({
       dateFrom: userDate,
@@ -332,7 +357,6 @@ export default class EventEditFormView extends AbstractStatefulView {
       },
     );
   }
-
 
   static parseEventToState(event) {
     return { ...event };
