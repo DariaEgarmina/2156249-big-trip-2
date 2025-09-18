@@ -2,6 +2,7 @@ import Observable from '../framework/observable.js';
 import { getRandomPoint } from '../mock/points.js';
 import { mockDestinations } from '../mock/destinations.js';
 import { mockOffers } from '../mock/offers.js';
+import { BLANK_EVENT } from '../const.js';
 
 const POINTS_COUNT = 3;
 
@@ -28,50 +29,7 @@ export default class PointsModel extends Observable {
   }
 
   get blankTripEvent() {
-    return {
-      type: 'flight',
-      id: '',
-      dateFrom: new Date(),
-      dateTo: new Date(Date.now() + 3600000),
-      destination: '',
-      offers: [],
-      basePrice: 0,
-      isFavorite: false,
-      allOffers: [
-        {
-          id: '61',
-          title: 'Upgrade to a business class',
-          price: 340
-        },
-        {
-          id: '62',
-          title: 'Upgrade to a comfort class',
-          price: 240
-        },
-        {
-          id: '63',
-          title: 'Choose seat',
-          price: 120
-        },
-        {
-          id: '64',
-          title: 'Business launge',
-          price: 90
-        },
-        {
-          id: '65',
-          title: 'Add luggage',
-          price: 73
-        }
-      ],
-      checkedOffers: [],
-      destinationInfo: {
-        description: '',
-        id: '',
-        name: '',
-        pictures: [],
-      },
-    };
+    return this.convertToTripEvent({ ...BLANK_EVENT });
   }
 
   getDestinationById(id) {
@@ -90,7 +48,19 @@ export default class PointsModel extends Observable {
   }
 
   convertToTripEvent(point) {
-    const destinationInfo = this.getDestinationById(point.id);
+    let destinationInfo;
+
+    if (point.id) {
+      destinationInfo = this.getDestinationById(point.id);
+    } else {
+      destinationInfo = {
+        id: '',
+        description: '',
+        name: '',
+        pictures: []
+      };
+    }
+
     const allOffers = this.getOfferByType(point.type);
     const checkedOffers = this.getOfferById(point.type, point.offers);
     return {

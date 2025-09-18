@@ -190,6 +190,10 @@ export default class EventEditFormView extends AbstractStatefulView {
     return createEventEditFormTemplate(this._state, this.#allDestinations);
   }
 
+  reset(event) {
+    this.updateElement(event);
+  }
+
   removeElement() {
     super.removeElement();
 
@@ -293,7 +297,7 @@ export default class EventEditFormView extends AbstractStatefulView {
       });
     } else {
       this.updateElement({
-        basePrice: value,
+        basePrice: Number(value),
       });
     }
   };

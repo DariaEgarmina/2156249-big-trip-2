@@ -83,8 +83,8 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceEditFormToEvent();
-      this.#handleDataChange(this.#event); //используем обрабочик для обновления события точки маршрута
     }
   }
 
@@ -92,19 +92,13 @@ export default class EventPresenter {
     this.#replaceEventToEditForm();
   };
 
-  //???!!! как тут поступить с this.#handleDataChange
   //обработчик нажатия на кнопку свернуть в форме
   //тут используем обрабочик для обновления события точки маршрута
-  #handleRollupButtonInEditFormClick = (event) => {
-    this.#handleDataChange(
-      UserAction.UPDATE_EVENT,
-      UpdateType.MINOR,
-      event
-    );
+  #handleRollupButtonInEditFormClick = () => {
+    this.#eventEditComponent.reset(this.#event);
     this.#replaceEditFormToEvent();
   };
 
-  //???!!! как тут поступить с this.#handleDataChange
   //обработчик нажатия на кнопку save в форме
   #handleFormSubmit = (event) => {
     this.#handleDataChange(
@@ -115,7 +109,6 @@ export default class EventPresenter {
     this.#replaceEditFormToEvent();
   };
 
-  //???!!! правильно ли я тут использовала this.#handleDataChange
   //обработчик нажатия на кнопку избранное в карточке
   //тут используем обрабочик для обновления события точки маршрута
   #handleFavoriteButtonClick = () => {
@@ -147,16 +140,10 @@ export default class EventPresenter {
     this.#mode = Mode.DEFAULT;
   }
 
-  //???!!! как тут поступить с this.#handleDataChange
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#replaceEditFormToEvent();
-      this.#handleDataChange(
-        UserAction.UPDATE_EVENT,
-        UpdateType.MINOR,
-        this.#event
-      );
+      this.resetView();
     }
   };
 }

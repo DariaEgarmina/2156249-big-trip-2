@@ -29,4 +29,15 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export { DateFormat, FilterType, SortType, UserAction, UpdateType };
+const BLANK_EVENT = {
+  type: 'flight',
+  id: '',
+  dateFrom: new Date(),
+  dateTo: new Date(Date.now() + 3600000),
+  destination: '',
+  offers: [],
+  basePrice: 0,
+  isFavorite: false,
+};
+
+export { DateFormat, FilterType, SortType, UserAction, UpdateType, BLANK_EVENT };
