@@ -1,28 +1,43 @@
-import FiltersView from './view/filters-view.js';
-import HeaderControlsPresenter from './presenter/header-controls-presenter.js';
-import TripEventsPresenter from './presenter/trip-events-presenter.js';
 import { render } from './framework/render.js';
+import TripEventsPresenter from './presenter/trip-events-presenter.js';
+import FilterPresenter from './presenter/filter-presenter.js';
 import PointsModel from './model/points-model.js';
-import { generateFilter } from './mock/filter.js';
+import FilterModel from './model/filter-model.js';
+import NewEventButtonView from './view/new-event-button-view.js';
 
 const headerControlsContainer = document.querySelector('.trip-main');
-const filtersContainer = document.querySelector('.trip-controls__filters');
+const filterContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
 
 const pointsModel = new PointsModel();
+const filterModel = new FilterModel();
 
-const headerControlsPresenter = new HeaderControlsPresenter({
-  headerControlsContainer: headerControlsContainer,
+const filterPresenter = new FilterPresenter({
+  filterContainer: filterContainer,
+  filterModel: filterModel,
+  pointsModel: pointsModel,
 });
 
 const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   pointsModel: pointsModel,
+  filterModel: filterModel,
+  onNewEventDestroy: handleNewTaskFormClose,
 });
 
-const filters = generateFilter(pointsModel.points);
+const newEventButtonComponent = new NewEventButtonView({
+  onNewEventButtonClick: handleNewEventButtonClick,
+});
 
-render(new FiltersView({filters}), filtersContainer);
+function handleNewTaskFormClose () {
+  newEventButtonComponent.element.disabled = false;
+}
 
-headerControlsPresenter.init();
+function handleNewEventButtonClick () {
+  tripEventsPresenter.createTripEvent();
+}
+
+render(newEventButtonComponent, headerControlsContainer);
+
+filterPresenter.init();
 tripEventsPresenter.init();

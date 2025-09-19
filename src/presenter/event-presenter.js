@@ -1,6 +1,7 @@
 import EventView from '../view/event-view.js';
 import EventEditFormView from '../view/event-edit-form-view.js';
 import { replace, render, remove } from '../framework/render.js';
+import { UserAction, UpdateType } from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -49,6 +50,7 @@ export default class EventPresenter {
       event: this.#event,
       onRollupButtonClick: this.#handleRollupButtonInEditFormClick,
       onFormSubmit: this.#handleFormSubmit,
+      onDeleteClick: this.#handleDeleteClick,
       allOffers: this.#allOffers,
       allDestinations: this.#allDestinations,
     });
@@ -80,9 +82,9 @@ export default class EventPresenter {
   }
 
   resetView() {
-    if(this.#mode !== Mode.DEFAULT) {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceEditFormToEvent();
-      this.#handleDataChange(this.#event); //используем обрабочик для обновления события точки маршрута
     }
   }
 
@@ -92,20 +94,37 @@ export default class EventPresenter {
 
   //обработчик нажатия на кнопку свернуть в форме
   //тут используем обрабочик для обновления события точки маршрута
-  #handleRollupButtonInEditFormClick = (event) => {
-    this.#handleDataChange(event);
+  #handleRollupButtonInEditFormClick = () => {
+    this.#eventEditComponent.reset(this.#event);
     this.#replaceEditFormToEvent();
   };
 
   //обработчик нажатия на кнопку save в форме
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (event) => {
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      event
+    );
     this.#replaceEditFormToEvent();
   };
 
   //обработчик нажатия на кнопку избранное в карточке
   //тут используем обрабочик для обновления события точки маршрута
   #handleFavoriteButtonClick = () => {
-    this.#handleDataChange({... this.#event, isFavorite: !this.#event.isFavorite}); // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      { ... this.#event, isFavorite: !this.#event.isFavorite } // мы передаем событие, но меняем в нём значение пункта isFavorite на противоположное
+    );
+  };
+
+  #handleDeleteClick = (event) => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event
+    );
   };
 
   #replaceEventToEditForm() {
@@ -124,8 +143,7 @@ export default class EventPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      this.#replaceEditFormToEvent();
-      this.#handleDataChange(this.#event);
+      this.resetView();
     }
   };
 }

@@ -1,72 +1,115 @@
 import EventPresenter from './event-presenter.js';
+import NewEventPresenter from './new-event-presenter.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
-import { updateItem } from '../utils/common.js';
-import { SortType } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
+import { filter } from '../utils/filter.js';
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #pointsModel = null;
-
-  #tripEvents = []; //свойство, куда мы сохраняем все точки маршрута из модели
+  #filterModel = null;
 
   #tripEventsListComponent = new TripEventsListView();
-  #noEventComponent = new NoEventView();
+  #noEventComponent = null;
   #sortComponent = null;
 
   #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
+  #newEventPresenter = null;
 
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
-  #sourcedTripEvents = []; // свойство для хранения копии массива задач ДО СОРТИРОВКИ
+  #filterType = FilterType.EVERYTHING;
 
   #allOffers = null;
   #allDestinations = null;
 
-  constructor({ tripEventsContainer, pointsModel }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
+  constructor({ tripEventsContainer, pointsModel, filterModel, onNewEventDestroy }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
-  }
+    this.#filterModel = filterModel;
 
-  init() {
-    this.#tripEvents = [...this.#pointsModel.getTripEvents()];
-    this.#sourcedTripEvents = [...this.#pointsModel.getTripEvents()]; //не забываем копировать задачи из модели в свойство для хранения копии массива задач ДО СОРТИРОВКИ
     this.#allOffers = this.#pointsModel.offers;
     this.#allDestinations = this.#pointsModel.destinations;
 
+    this.#newEventPresenter = new NewEventPresenter({
+      tripEventsListComponent: this.#tripEventsListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewEventDestroy,
+      allOffers: this.#allOffers,
+      allDestinations: this.#allDestinations,
+    });
+
+    this.#pointsModel.addObserver(this.#handleModelEvent); // подписались на изменения модели
+    this.#filterModel.addObserver(this.#handleModelEvent);
+  }
+
+  get tripEvents() {
+    this.#filterType = this.#filterModel.filter;
+    const tripEvents = this.#pointsModel.tripEvents;
+    const filteredTripEvents = filter[this.#filterType](tripEvents);
+
+    switch (this.#currentSortType) {
+      case SortType.PRICE:
+        return [...filteredTripEvents].sort(sortEventsByPrice);
+      case SortType.TIME:
+        return [...filteredTripEvents].sort(sortEventsByTime);
+      case SortType.DAY:
+        return filteredTripEvents;
+    }
+
+    return filteredTripEvents;
+  }
+
+  init() {
     this.#renderEventsListAndSort();
+  }
+
+  createTripEvent() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newEventPresenter.init(this.#pointsModel.blankTripEvent);
   }
 
   //обрабочик для смены режима с просмотра на редактирование и обратно, передаем в презентер точки маршрута
   #handleModeChange = () => {
+    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView()); // метод resetView() меняет форму редактирования на карточку, если режим не равен дефолтному
   };
 
-  //метод-обработчик обновления точки маршрута
-  #handleEventChange = (updatedEvent) => {
-    this.#tripEvents = updateItem(this.#tripEvents, updatedEvent); //обновляем точку маршрута в свойстве-копии точек маршрута из модели
-    this.#sourcedTripEvents = updateItem(this.#sourcedTripEvents, updatedEvent); //не забываем обновить задачу также в свойстве для хранения копии массива задач ДО СОРТИРОВКИ
-    this.#eventPresenters
-      .get(updatedEvent.pointId)
-      .init(updatedEvent);
+  //метод-обработчик, который реагирует на действия пользователя, на основе которых мы должны вызвать изменения модели
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#pointsModel.updateTripEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#pointsModel.addTripEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#pointsModel.deleteTripEvent(updateType, update);
+        break;
+    }
   };
 
-  //метод для непосредственной сортировки событий
-  #sortEvents(sortType) {
-    switch (sortType) {
-      case SortType.PRICE:
-        this.#tripEvents.sort(sortEventsByPrice); //сортируем массив свойства this.#tripEvents, куда мы сохраняем все точки маршрута из модели
+  //метод-обработчик, который будет реагировать на изменения модели. Когда модель будет меняться, она будет рассылать всем своим "подписчикам" "уведомления" об изменениях.
+  // Если trip-events-presenter подпишется на обновления модели, будет срабатывать этот метод-обработчик
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#eventPresenters.get(data.pointId).init(data);
         break;
-      case SortType.TIME:
-        this.#tripEvents.sort(sortEventsByTime);
+      case UpdateType.MINOR:
+        this.#clearEventsList();
+        this.#renderEventsList();
         break;
-      case SortType.DAY:
-        this.#tripEvents = [... this.#sourcedTripEvents]; //возвращаем свойство this.#tripEvents к исходному виду
+      case UpdateType.MAJOR:
+        this.#clearEventsList({ resetSortType: true });
+        this.#renderEventsList();
+        break;
     }
-
-    this.#currentSortType = sortType;
-  }
+  };
 
   //метод-обработчик для клика по кнопкам сортировки
   #handleSortTypeChange = (sortType) => {
@@ -75,7 +118,8 @@ export default class TripEventsPresenter {
       return;
     }
 
-    this.#sortEvents(sortType); //сортируем задачи
+    this.#currentSortType = sortType;
+
     this.#clearSort(this.#sortComponent); //удаляем старую вьюшку сортировки (чтобы можно было добавить checked нужной кнопке)
     this.#renderSort(); //рендерим новую
     this.#clearEventsList(); //удаляем ранее отрисованный список задач в старом порядке
@@ -99,7 +143,7 @@ export default class TripEventsPresenter {
   #renderEvent(event) {
     const eventPresenter = new EventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
-      onDataChange: this.#handleEventChange, //передаем в презентер точки маршрута обработчик обнавления точки маршрута
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange, //передаем в презентер точки маршрута обработчик смены режима с просмотра на редактирование и обратно
       allOffers: this.#allOffers,
       allDestinations: this.#allDestinations,
@@ -110,28 +154,41 @@ export default class TripEventsPresenter {
     this.#eventPresenters.set(event.pointId, eventPresenter); //Добавляем в коллекцию созданный презентер
   }
 
-  #renderEvents() {
-    this.#tripEvents.forEach((event) => this.#renderEvent(event));
+  #renderEvents(tripEvents) {
+    tripEvents.forEach((event) => this.#renderEvent(event));
   }
 
   #renderNoEvent() {
-    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+    this.#noEventComponent = new NoEventView({
+      filterType: this.#filterType
+    });
+
+    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.BEFOREEND);
   }
 
   //метод, чтобы очистить весь список точек маршрута
-  #clearEventsList() {
+  #clearEventsList({ resetSortType = false } = {}) {
+    this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
+    if (this.#noEventComponent) {
+      remove(this.#noEventComponent);
+    }
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
 
   #renderEventsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    if (!this.#tripEvents.length) {
+    if (!this.tripEvents.length) {
       this.#renderNoEvent();
     }
 
-    this.#renderEvents();
+    this.#renderEvents(this.tripEvents);
   }
 
   #renderEventsListAndSort() {

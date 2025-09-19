@@ -134,7 +134,7 @@ const createEventEditFormTemplate = (event, allDestinations) => {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+              <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="0">
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -163,6 +163,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   #event = null;
   #handleRollupButtonClick = null;
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
 
   #allOffers = null;
   #allDestinations = null;
@@ -170,7 +171,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   #startDatepicker = null;
   #endDatepicker = null;
 
-  constructor({ event = {}, onRollupButtonClick, onFormSubmit, allOffers = [], allDestinations = [] } = {}) {
+  constructor({ event = {}, onRollupButtonClick, onFormSubmit, onDeleteClick, allOffers = [], allDestinations = [] } = {}) {
     super();
     this.#event = event;
     this._setState(event);
@@ -180,12 +181,17 @@ export default class EventEditFormView extends AbstractStatefulView {
 
     this.#handleRollupButtonClick = onRollupButtonClick;
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
 
   get template() {
     return createEventEditFormTemplate(this._state, this.#allDestinations);
+  }
+
+  reset(event) {
+    this.updateElement(event);
   }
 
   removeElement() {
@@ -207,10 +213,19 @@ export default class EventEditFormView extends AbstractStatefulView {
       .addEventListener('click', this.#rollupButtonClickHandler);
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__type-group')
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
+
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
 
     this.#setStartDatepicker();
     this.#setEndDatepicker();
@@ -223,7 +238,12 @@ export default class EventEditFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(); // !!!пока сюда ничего не передаю и не меняю карточку точки маршрута после изменений в форме редактирования
+    this.#handleFormSubmit(this._state);
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(this.#event); // <-- передаю событие, которые изначально было в карточке
   };
 
   #typeChangeHandler = (evt) => {
@@ -250,7 +270,7 @@ export default class EventEditFormView extends AbstractStatefulView {
     const newDestination = this.#allDestinations.find((item) => item.name === value);
 
     //подумать, как сделать, когда пункта назначения нет в списке
-    if(!newDestination) {
+    if (!newDestination) {
       return;
     }
 
@@ -263,6 +283,44 @@ export default class EventEditFormView extends AbstractStatefulView {
         name: newDestination.name,
         pictures: [...newDestination.pictures],
       }
+    });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const value = evt.target.value;
+
+    if (!value) {
+      this.updateElement({
+        basePrice: 0,
+      });
+    } else {
+      this.updateElement({
+        basePrice: Number(value),
+      });
+    }
+  };
+
+  #offerChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const offerId = evt.target.id;
+    const isChecked = evt.target.checked;
+
+    let updatedOffers = [...this._state.checkedOffers];
+    const offerToUpdate = this._state.allOffers.find((offer) => offer.id === offerId);
+
+    if (isChecked) {
+      if (!updatedOffers.some((offer) => offer.id === offerId)) {
+        updatedOffers.push(offerToUpdate);
+      }
+    } else {
+      updatedOffers = updatedOffers.filter((offer) => offer.id !== offerId);
+    }
+
+    this.updateElement({
+      checkedOffers: updatedOffers
     });
   };
 
@@ -303,7 +361,6 @@ export default class EventEditFormView extends AbstractStatefulView {
       },
     );
   }
-
 
   static parseEventToState(event) {
     return { ...event };

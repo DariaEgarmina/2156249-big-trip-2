@@ -17,4 +17,27 @@ const SortType = {
   PRICE: 'price'
 };
 
-export { DateFormat, FilterType, SortType };
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const BLANK_EVENT = {
+  type: 'flight',
+  id: '',
+  dateFrom: new Date(),
+  dateTo: new Date(Date.now() + 3600000),
+  destination: '',
+  offers: [],
+  basePrice: 0,
+  isFavorite: false,
+};
+
+export { DateFormat, FilterType, SortType, UserAction, UpdateType, BLANK_EVENT };

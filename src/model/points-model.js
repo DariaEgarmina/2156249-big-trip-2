@@ -1,16 +1,23 @@
+import Observable from '../framework/observable.js';
 import { getRandomPoint } from '../mock/points.js';
 import { mockDestinations } from '../mock/destinations.js';
 import { mockOffers } from '../mock/offers.js';
+import { BLANK_EVENT } from '../const.js';
 
 const POINTS_COUNT = 3;
 
-export default class PointsModel {
+export default class PointsModel extends Observable {
   #points = Array.from({ length: POINTS_COUNT }, getRandomPoint);
   #destinations = mockDestinations;
   #offers = mockOffers;
+  #tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
 
   get points() {
     return this.#points;
+  }
+
+  get tripEvents() {
+    return this.#tripEvents;
   }
 
   get destinations() {
@@ -19,6 +26,10 @@ export default class PointsModel {
 
   get offers() {
     return this.#offers;
+  }
+
+  get blankTripEvent() {
+    return this.convertToTripEvent({ ...BLANK_EVENT });
   }
 
   getDestinationById(id) {
@@ -36,22 +47,70 @@ export default class PointsModel {
     return offerByType.offers.filter((item) => offerIds.find((id) => item.id === id));
   }
 
-  getTripEvents() {
-    const allPoints = this.points;
+  convertToTripEvent(point) {
+    let destinationInfo;
 
-    const tripEvents = allPoints.map((point) => {
-      const destinationInfo = this.getDestinationById(point.id);
-      const allOffers = this.getOfferByType(point.type);
-      const checkedOffers = this.getOfferById(point.type, point.offers);
-      return {
-        ...point,
-        allOffers: allOffers.offers,
-        checkedOffers: checkedOffers,
-        destinationInfo: destinationInfo,
+    if (point.id) {
+      destinationInfo = this.getDestinationById(point.id);
+    } else {
+      destinationInfo = {
+        id: '',
+        description: '',
+        name: '',
+        pictures: []
       };
     }
-    );
 
-    return tripEvents;
+    const allOffers = this.getOfferByType(point.type);
+    const checkedOffers = this.getOfferById(point.type, point.offers);
+    return {
+      ...point,
+      allOffers: allOffers.offers,
+      checkedOffers: checkedOffers,
+      destinationInfo: destinationInfo,
+    };
+  }
+
+  //Метод для обновления точки маршрута - функционал из презентера перенесли в модель
+  updateTripEvent(updateType, update) {
+    const index = this.#tripEvents.findIndex((event) => event.pointId === update.pointId);
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting task');
+    }
+
+    this.#tripEvents = [
+      ...this.#tripEvents.slice(0, index),
+      update,
+      ...this.#tripEvents.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  // метод для добавления точки маршрута
+  addTripEvent(updateType, update) {
+    this.#tripEvents = [
+      update,
+      ...this.#tripEvents,
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  //метод для удаления точки маршрута
+  deleteTripEvent(updateType, update) {
+    const index = this.#tripEvents.findIndex((task) => task.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting task');
+    }
+
+    this.#tripEvents = [
+      ...this.#tripEvents.slice(0, index),
+      ...this.#tripEvents.slice(index + 1),
+    ];
+
+    this._notify(updateType);
   }
 }

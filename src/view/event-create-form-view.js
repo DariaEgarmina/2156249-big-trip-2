@@ -1,6 +1,5 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { createOfferListTemplate, createAllDestinationsTemplate } from './event-edit-form-view.js';
 import { humanizeEventDate } from '../utils/date.js';
@@ -24,6 +23,17 @@ const createPhotoListTemplate = (photos) => {
          ${photos.map((photo) => createPhotoTemplate(photo)).join('')}
       </div>
     </div>`
+  );
+};
+
+const createDestinationDescriptionTemplate = (description) => {
+  if (!description) {
+    return '';
+  }
+
+  return (
+    `<h3 class="event__section-title  event__section-title--destination">Destination</h3>
+     <p class="event__destination-description">${description}</p>`
   );
 };
 
@@ -116,7 +126,7 @@ const createEventCreateFormTemplate = (event, allDestinations) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="0">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -124,12 +134,11 @@ const createEventCreateFormTemplate = (event, allDestinations) => {
         </header>
         <section class="event__details">
 
+
           ${createOfferListTemplate(allOffers, checkedOffers)}
 
           <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${description}</p>
-
+            ${createDestinationDescriptionTemplate(description)}
             ${createPhotoListTemplate(pictures)}
           </section>
         </section>
@@ -140,7 +149,9 @@ const createEventCreateFormTemplate = (event, allDestinations) => {
 
 export default class EventCreateFormView extends AbstractStatefulView {
   #event = null;
+
   #handleFormSubmit = null;
+  #handleDeleteClick = null;
 
   #allOffers = null;
   #allDestinations = null;
@@ -148,15 +159,18 @@ export default class EventCreateFormView extends AbstractStatefulView {
   #startDatepicker = null;
   #endDatepicker = null;
 
-  constructor({ event = {},onFormSubmit, allOffers = [], allDestinations = [] } = {}) {
+  constructor({ event, onFormSubmit, onDeleteClick, allOffers = [], allDestinations = [] } = {}) {
     super();
+
     this.#event = event;
-    this._setState(event);
+
+    this._setState(this.#event);
 
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
 
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -182,10 +196,19 @@ export default class EventCreateFormView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
     this.element.querySelector('.event__type-group')
       .addEventListener('click', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
+
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
 
     this.#setStartDatepicker();
     this.#setEndDatepicker();
@@ -193,11 +216,17 @@ export default class EventCreateFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this._state);
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick();
   };
 
   #typeChangeHandler = (evt) => {
     const value = evt.target.value;
+
     if (!value) {
       return;
     }
@@ -228,6 +257,44 @@ export default class EventCreateFormView extends AbstractStatefulView {
         name: newDestination.name,
         pictures: [...newDestination.pictures],
       }
+    });
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const value = evt.target.value;
+
+    if (!value) {
+      this.updateElement({
+        basePrice: 0,
+      });
+    } else {
+      this.updateElement({
+        basePrice: value,
+      });
+    }
+  };
+
+  #offerChangeHandler = (evt) => {
+    evt.preventDefault();
+
+    const offerId = evt.target.id;
+    const isChecked = evt.target.checked;
+
+    let updatedOffers = [...this._state.checkedOffers];
+    const offerToUpdate = this._state.allOffers.find((offer) => offer.id === offerId);
+
+    if (isChecked) {
+      if (!updatedOffers.some((offer) => offer.id === offerId)) {
+        updatedOffers.push(offerToUpdate);
+      }
+    } else {
+      updatedOffers = updatedOffers.filter((offer) => offer.id !== offerId);
+    }
+
+    this.updateElement({
+      checkedOffers: updatedOffers
     });
   };
 

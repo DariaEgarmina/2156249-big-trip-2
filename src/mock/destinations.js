@@ -8,15 +8,15 @@ const mockDestinations = [
     name: 'Moscow',
     pictures: [
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       }
     ]
@@ -27,19 +27,19 @@ const mockDestinations = [
     name: 'Saint Petersburg',
     pictures: [
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       }
     ]
@@ -50,11 +50,11 @@ const mockDestinations = [
     name: 'Sochi',
     pictures: [
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       }
     ]
@@ -71,15 +71,15 @@ const mockDestinations = [
     name: 'Novosibirsk',
     pictures: [
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       }
     ]
@@ -90,19 +90,19 @@ const mockDestinations = [
     name: 'Vladivostok',
     pictures: [
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       },
       {
-        src: `https://loremflickr.com/248/152?random=${getRandomNumber(1, 100)}`,
+        src: `https://22.objects.htmlacademy.pro/static/destinations/${getRandomNumber(1, 20)}.jpg`,
         description: getRandomArrayElement(descriptions)
       }
     ]
