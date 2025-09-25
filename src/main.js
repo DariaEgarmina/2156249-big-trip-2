@@ -48,3 +48,4 @@ render(newEventButtonComponent, headerControlsContainer);
 
 filterPresenter.init();
 tripEventsPresenter.init();
+pointsModel.init();

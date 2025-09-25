@@ -3,6 +3,7 @@ import NewEventPresenter from './new-event-presenter.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
 import NoEventView from '../view/no-event-view.js';
 import SortView from '../view/sort-view.js';
+import LoadingView from '../view/loading-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
@@ -15,12 +16,14 @@ export default class TripEventsPresenter {
   #tripEventsListComponent = new TripEventsListView();
   #noEventComponent = null;
   #sortComponent = null;
+  #loadingComponent = new LoadingView();
 
   #eventPresenters = new Map(); //Коллекция для хранения отрисованных event-презентеров
   #newEventPresenter = null;
 
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
   #filterType = FilterType.EVERYTHING;
+  #isLoading = true;
 
   #allOffers = null;
   #allDestinations = null;
@@ -108,6 +111,11 @@ export default class TripEventsPresenter {
         this.#clearEventsList({ resetSortType: true });
         this.#renderEventsList();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderEventsList();
+        break;
     }
   };
 
@@ -166,6 +174,10 @@ export default class TripEventsPresenter {
     render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.BEFOREEND);
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#tripEventsContainer, RenderPosition.BEFOREEND);
+  }
+
   //метод, чтобы очистить весь список точек маршрута
   #clearEventsList({ resetSortType = false } = {}) {
     this.#newEventPresenter.destroy();
@@ -176,6 +188,10 @@ export default class TripEventsPresenter {
       remove(this.#noEventComponent);
     }
 
+    if (this.#loadingComponent) {
+      remove(this.#loadingComponent);
+    }
+
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
     }
@@ -184,8 +200,14 @@ export default class TripEventsPresenter {
   #renderEventsList() {
     render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (!this.tripEvents.length) {
       this.#renderNoEvent();
+      return;
     }
 
     this.#renderEvents(this.tripEvents);

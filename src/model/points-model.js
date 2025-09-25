@@ -1,15 +1,13 @@
 import Observable from '../framework/observable.js';
-import { getRandomPoint } from '../mock/points.js';
 import { mockDestinations } from '../mock/destinations.js';
 import { mockOffers } from '../mock/offers.js';
 import { BLANK_EVENT } from '../const.js';
-
-const POINTS_COUNT = 3;
+import { UpdateType } from '../const.js';
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
 
-  #points = Array.from({ length: POINTS_COUNT }, getRandomPoint);
+  #points = [];
   #destinations = mockDestinations;
   #offers = mockOffers;
   #tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
@@ -18,9 +16,20 @@ export default class PointsModel extends Observable {
     super();
     this.#pointsApiService = pointsApiService;
 
-    this.#pointsApiService.points.then((points) => {
-      console.log(points.map(this.#adaptToClient));
-    });
+    // this.#pointsApiService.points.then((points) => {
+    //   console.log(points.map(this.#adaptToClient));
+    // }); УДАЛИТЬ по-настоящему
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch (err) {
+      this.#points = [];
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
   get points() {
@@ -132,7 +141,8 @@ export default class PointsModel extends Observable {
       dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
       dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_to'],
       isFavorite: point['is_favorite'],
-      // id - помни, что пока у тебя есть два вида id - id и pointId
+      pointId: point['id'],
+      // id - помни, что пока у тебя есть два вида id - id и pointId и что лишнее надо удалить
     };
 
     delete adaptedPoint['base_price'];
