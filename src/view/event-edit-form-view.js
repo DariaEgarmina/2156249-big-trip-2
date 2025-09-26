@@ -46,8 +46,8 @@ const createAllDestinationsTemplate = (allDestinations) =>
 
 
 const createEventEditFormTemplate = (event, allDestinations) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destination, destinationInfo } = event;
-  const { description, pictures } = destinationInfo;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo } = event;
+  const { name, description, pictures } = destinationInfo;
 
   return (
     `<li class="trip-events__item">
@@ -116,7 +116,7 @@ const createEventEditFormTemplate = (event, allDestinations) => {
               <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
 
               ${createAllDestinationsTemplate(allDestinations)}
             </div>

@@ -32,7 +32,8 @@ const makeEventFavorite = (isFavorite) => {
 };
 
 const createEventTemplate = (event) => {
-  const { type, destination, basePrice, dateFrom, dateTo, isFavorite, checkedOffers } = event;
+  const { type, destinationInfo, basePrice, dateFrom, dateTo, isFavorite, checkedOffers } = event;
+  const { name } = destinationInfo;
 
   const date = humanizeEventDate(dateFrom, DateFormat.DAY_MONTH);
   const timeFrom = humanizeEventTime(dateFrom);
@@ -46,7 +47,7 @@ const createEventTemplate = (event) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${destination}</h3>
+        <h3 class="event__title">${type} ${name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
