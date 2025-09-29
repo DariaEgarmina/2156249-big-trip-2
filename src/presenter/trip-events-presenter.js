@@ -25,23 +25,17 @@ export default class TripEventsPresenter {
   #filterType = FilterType.EVERYTHING;
   #isLoading = true;
 
-  #allOffers = null;
-  #allDestinations = null;
-
   constructor({ tripEventsContainer, pointsModel, filterModel, onNewEventDestroy }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
-    this.#allOffers = this.#pointsModel.offers;
-    this.#allDestinations = this.#pointsModel.destinations;
-
     this.#newEventPresenter = new NewEventPresenter({
       tripEventsListComponent: this.#tripEventsListComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewEventDestroy,
-      allOffers: this.#allOffers,
-      allDestinations: this.#allDestinations,
+      allOffers: () => this.allOffers,
+      allDestinations: () => this.allDestinations,
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent); // подписались на изменения модели
@@ -63,6 +57,15 @@ export default class TripEventsPresenter {
     }
 
     return filteredTripEvents;
+  }
+
+  // Геттеры всегда возвращают актуальные данные из модели
+  get allOffers() {
+    return this.#pointsModel.offers;
+  }
+
+  get allDestinations() {
+    return this.#pointsModel.destinations;
   }
 
   init() {
@@ -153,8 +156,8 @@ export default class TripEventsPresenter {
       tripEventsListComponent: this.#tripEventsListComponent.element,
       onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange, //передаем в презентер точки маршрута обработчик смены режима с просмотра на редактирование и обратно
-      allOffers: this.#allOffers,
-      allDestinations: this.#allDestinations,
+      allOffers: this.allOffers,
+      allDestinations: this.allDestinations,
     });
 
     eventPresenter.init(event);

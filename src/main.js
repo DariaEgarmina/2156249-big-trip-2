@@ -6,6 +6,7 @@ import FilterModel from './model/filter-model.js';
 import NewEventButtonView from './view/new-event-button-view.js';
 import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
+import OffersApiService from './offers-api-service.js';
 
 const AUTHORIZATION = 'Basic tk9f74nz31856b1';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -17,6 +18,7 @@ const tripEventsContainer = document.querySelector('.trip-events');
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION),
   destinationsApiService: new DestinationsApiService(END_POINT, AUTHORIZATION),
+  offersApiService: new OffersApiService(END_POINT, AUTHORIZATION),
 });
 
 const filterModel = new FilterModel();

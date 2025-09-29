@@ -26,6 +26,8 @@ export default class NewEventPresenter {
 
   init(event) {
     this.#event = event;
+    const offers = this.#allOffers();
+    const destinations = this.#allDestinations();
 
     if (this.#newEventComponent !== null) {
       return;
@@ -35,8 +37,8 @@ export default class NewEventPresenter {
       event: this.#event,
       onFormSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
-      allOffers: this.#allOffers,
-      allDestinations: this.#allDestinations,
+      allOffers: offers,
+      allDestinations: destinations,
     });
 
     render(this.#newEventComponent, this.#tripEventsListComponent, RenderPosition.AFTERBEGIN);
