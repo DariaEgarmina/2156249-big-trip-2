@@ -65,7 +65,7 @@ export default class NewEventPresenter {
       UpdateType.MINOR,
 
       {
-        pointId: nanoid(),
+        id: nanoid(),
         ...event,
       },
 

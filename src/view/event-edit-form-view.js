@@ -269,14 +269,12 @@ export default class EventEditFormView extends AbstractStatefulView {
 
     const newDestination = this.#allDestinations.find((item) => item.name === value);
 
-    //подумать, как сделать, когда пункта назначения нет в списке
     if (!newDestination) {
       return;
     }
 
     this.updateElement({
-      destination: value,
-      id: newDestination.id,
+      destination: newDestination.id,
       destinationInfo: {
         id: newDestination.id,
         description: newDestination.description,
@@ -320,7 +318,7 @@ export default class EventEditFormView extends AbstractStatefulView {
     }
 
     this.updateElement({
-      checkedOffers: updatedOffers
+      checkedOffers: updatedOffers,
     });
   };
 

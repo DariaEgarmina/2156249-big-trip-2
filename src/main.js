@@ -33,14 +33,14 @@ const tripEventsPresenter = new TripEventsPresenter({
   tripEventsContainer: tripEventsContainer,
   pointsModel: pointsModel,
   filterModel: filterModel,
-  onNewEventDestroy: handleNewTaskFormClose,
+  onNewEventDestroy: handleNewEventFormClose,
 });
 
 const newEventButtonComponent = new NewEventButtonView({
   onNewEventButtonClick: handleNewEventButtonClick,
 });
 
-function handleNewTaskFormClose() {
+function handleNewEventFormClose() {
   newEventButtonComponent.element.disabled = false;
 }
 

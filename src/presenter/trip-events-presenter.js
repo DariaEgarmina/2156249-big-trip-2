@@ -104,7 +104,7 @@ export default class TripEventsPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#eventPresenters.get(data.pointId).init(data);
+        this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
         this.#clearEventsList();
@@ -162,7 +162,7 @@ export default class TripEventsPresenter {
 
     eventPresenter.init(event);
 
-    this.#eventPresenters.set(event.pointId, eventPresenter); //Добавляем в коллекцию созданный презентер
+    this.#eventPresenters.set(event.id, eventPresenter); //Добавляем в коллекцию созданный презентер
   }
 
   #renderEvents(tripEvents) {

@@ -14,7 +14,7 @@ export default class PointsApiService extends ApiService {
 
   async updatePoint(point) {
     const response = await this._load({
-      url: `points/${point.pointId}`,
+      url: `points/${point.id}`,
       method: Method.PUT,
       body: JSON.stringify(this.#adaptToServer(point)),
       headers: new Headers({ 'Content-Type': 'application/json' }),
@@ -32,10 +32,15 @@ export default class PointsApiService extends ApiService {
       'date_from': point.dateFrom instanceof Date ? point.dateFrom.toISOString() : null,
       'date_to': point.dateTo instanceof Date ? point.dateTo.toISOString() : null,
       'is_favorite': point.isFavorite,
-      'id': point.pointId,
-      // id - помни, что пока у тебя есть два вида id - id и pointId и что лишнее надо удалить
+      'destination': point.destinationInfo.id,
+      'offers': point.checkedOffers,
     };
 
+    // console.log(adaptedPoint);
+
+    delete adaptedPoint.allOffers;
+    delete adaptedPoint.checkedOffers;
+    delete adaptedPoint.destinationInfo;
     delete adaptedPoint.basePrice;
     delete adaptedPoint.dateFrom;
     delete adaptedPoint.dateTo;

@@ -23,6 +23,7 @@ export default class PointsModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#points = points.map(this.#adaptToClient);
+      // console.log(this.#points);
 
       const destinations = await this.#destinationsApiService.destinations;
       this.#destinations = destinations;
@@ -77,7 +78,7 @@ export default class PointsModel extends Observable {
   convertToTripEvent(point) {
     let destinationInfo;
 
-    if (point.id) {
+    if (point.destination) {
       destinationInfo = this.getDestinationByDestination(point.destination);
     } else {
       destinationInfo = {
@@ -99,20 +100,33 @@ export default class PointsModel extends Observable {
   }
 
   //Метод для обновления точки маршрута - функционал из презентера перенесли в модель
-  updateTripEvent(updateType, update) {
-    const index = this.#tripEvents.findIndex((event) => event.pointId === update.pointId);
+  async updateTripEvent(updateType, update) {
+    const pointsIndex = this.#points.findIndex((point) => point.id === update.id);
 
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting task');
+    if (pointsIndex === -1) {
+      throw new Error('Can\'t update unexisting event');
     }
 
-    this.#tripEvents = [
-      ...this.#tripEvents.slice(0, index),
-      update,
-      ...this.#tripEvents.slice(index + 1),
-    ];
+    try {
+      const response = await this.#pointsApiService.updatePoint(update);
+      const updatedPoint = this.#adaptToClient(response);
 
-    this._notify(updateType, update);
+      // 1. Обновляем основной массив points
+      this.#points = [
+        ...this.#points.slice(0, pointsIndex),
+        updatedPoint,
+        ...this.#points.slice(pointsIndex + 1),
+      ];
+
+      // 2. Пересоздаем массив tripEvents из обновленных points
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+
+      // 3. Уведомляем с обновленным tripEvent
+      const updatedTripEvent = this.convertToTripEvent(updatedPoint);
+      this._notify(updateType, updatedTripEvent);
+    } catch (err) {
+      throw new Error('Can\'t update event');
+    }
   }
 
   // метод для добавления точки маршрута
@@ -127,10 +141,10 @@ export default class PointsModel extends Observable {
 
   //метод для удаления точки маршрута
   deleteTripEvent(updateType, update) {
-    const index = this.#tripEvents.findIndex((task) => task.id === update.id);
+    const index = this.#tripEvents.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
-      throw new Error('Can\'t delete unexisting task');
+      throw new Error('Can\'t delete unexisting event');
     }
 
     this.#tripEvents = [
@@ -148,8 +162,7 @@ export default class PointsModel extends Observable {
       dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
       dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_to'],
       isFavorite: point['is_favorite'],
-      pointId: point['id'],
-      // id - помни, что пока у тебя есть два вида id - id и pointId и что лишнее надо удалить
+      checkedOffers: point['offers'],
     };
 
     delete adaptedPoint['base_price'];
