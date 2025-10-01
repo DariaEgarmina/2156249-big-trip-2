@@ -33,10 +33,8 @@ export default class PointsApiService extends ApiService {
       'date_to': point.dateTo instanceof Date ? point.dateTo.toISOString() : null,
       'is_favorite': point.isFavorite,
       'destination': point.destinationInfo.id,
-      'offers': point.checkedOffers,
+      'offers': point.checkedOffers.map((checkedOffer) => checkedOffer.id),
     };
-
-    // console.log(adaptedPoint);
 
     delete adaptedPoint.allOffers;
     delete adaptedPoint.checkedOffers;
