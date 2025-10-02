@@ -38,8 +38,8 @@ const createDestinationDescriptionTemplate = (description) => {
 };
 
 const createEventCreateFormTemplate = (event, allDestinations) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destination, destinationInfo } = event;
-  const { description, pictures } = destinationInfo;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo } = event;
+  const { name, description, pictures } = destinationInfo;
 
   return (
     `<li class="trip-events__item">
@@ -108,7 +108,7 @@ const createEventCreateFormTemplate = (event, allDestinations) => {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
 
             ${createAllDestinationsTemplate(allDestinations)}
           </div>
@@ -126,7 +126,7 @@ const createEventCreateFormTemplate = (event, allDestinations) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="0">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="1"  max="100000">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -248,9 +248,12 @@ export default class EventCreateFormView extends AbstractStatefulView {
 
     const newDestination = this.#allDestinations.find((item) => item.name === value);
 
+    if (!newDestination) {
+      return;
+    }
+
     this.updateElement({
-      destination: value,
-      id: newDestination.id,
+      destination: newDestination.id,
       destinationInfo: {
         id: newDestination.id,
         description: newDestination.description,
@@ -263,17 +266,19 @@ export default class EventCreateFormView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
 
-    const value = evt.target.value;
+    let value = Number(evt.target.value);
 
-    if (!value) {
-      this.updateElement({
-        basePrice: 0,
-      });
-    } else {
-      this.updateElement({
-        basePrice: value,
-      });
+    if (isNaN(value) || value < 1) {
+      value = 1;
+    } else if (value > 100000) {
+      value = 100000;
     }
+
+    evt.target.value = value;
+
+    this.updateElement({
+      basePrice: value,
+    });
   };
 
   #offerChangeHandler = (evt) => {

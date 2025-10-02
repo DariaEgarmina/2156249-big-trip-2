@@ -129,29 +129,47 @@ export default class PointsModel extends Observable {
   }
 
   // метод для добавления точки маршрута
-  addTripEvent(updateType, update) {
-    this.#tripEvents = [
-      update,
-      ...this.#tripEvents,
-    ];
+  async addTripEvent(updateType, update) {
+    try {
+      const response = await this.#pointsApiService.addPoint(update);
+      const newPoint = this.#adaptToClient(response);
 
-    this._notify(updateType, update);
+      this.#points = [
+        newPoint,
+        ...this.#points,
+      ];
+
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+      const newTripEvent = this.convertToTripEvent(newPoint);
+
+      this._notify(updateType, newTripEvent);
+    } catch (err) {
+      throw new Error('Can\'t add event');
+    }
   }
 
   //метод для удаления точки маршрута
-  deleteTripEvent(updateType, update) {
-    const index = this.#tripEvents.findIndex((event) => event.id === update.id);
+  async deleteTripEvent(updateType, update) {
+    const pointsIndex = this.#points.findIndex((point) => point.id === update.id);
 
-    if (index === -1) {
+    if (pointsIndex === -1) {
       throw new Error('Can\'t delete unexisting event');
     }
 
-    this.#tripEvents = [
-      ...this.#tripEvents.slice(0, index),
-      ...this.#tripEvents.slice(index + 1),
-    ];
+    try {
+      await this.#pointsApiService.deletePoint(update);
 
-    this._notify(updateType);
+      this.#points = [
+        ...this.#points.slice(0, pointsIndex),
+        ...this.#points.slice(pointsIndex + 1),
+      ];
+
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+
+      this._notify(updateType);
+    } catch (err) {
+      throw new Error('Can\'t delete task');
+    }
   }
 
   #adaptToClient(point) {

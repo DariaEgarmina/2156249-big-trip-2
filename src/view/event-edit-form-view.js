@@ -134,7 +134,7 @@ const createEventEditFormTemplate = (event, allDestinations) => {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="0">
+              <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="1"  max="100000">
             </div>
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -287,17 +287,19 @@ export default class EventEditFormView extends AbstractStatefulView {
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
 
-    const value = evt.target.value;
+    let value = Number(evt.target.value);
 
-    if (!value) {
-      this.updateElement({
-        basePrice: 0,
-      });
-    } else {
-      this.updateElement({
-        basePrice: Number(value),
-      });
+    if (isNaN(value) || value < 1) {
+      value = 1;
+    } else if (value > 100000) {
+      value = 100000;
     }
+
+    evt.target.value = value;
+
+    this.updateElement({
+      basePrice: value,
+    });
   };
 
   #offerChangeHandler = (evt) => {
