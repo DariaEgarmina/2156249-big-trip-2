@@ -38,8 +38,10 @@ const createDestinationDescriptionTemplate = (description) => {
 };
 
 const createEventCreateFormTemplate = (event, allDestinations) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo } = event;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo, isSaving } = event;
   const { name, description, pictures } = destinationInfo;
+
+  const saveButtonText = isSaving ? 'Saving...' : 'Save';
 
   return (
     `<li class="trip-events__item">
@@ -129,7 +131,7 @@ const createEventCreateFormTemplate = (event, allDestinations) => {
             <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="1"  max="100000">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
         </header>
         <section class="event__details">
@@ -163,8 +165,7 @@ export default class EventCreateFormView extends AbstractStatefulView {
     super();
 
     this.#event = event;
-
-    this._setState(this.#event);
+    this._setState(EventCreateFormView.parseEventToState(event));
 
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
@@ -224,7 +225,7 @@ export default class EventCreateFormView extends AbstractStatefulView {
       return;
     }
 
-    this.#handleFormSubmit(this._state);
+    this.#handleFormSubmit(EventCreateFormView.parseStateToEvent(this._state));
   };
 
   #deleteClickHandler = (evt) => {
@@ -351,11 +352,20 @@ export default class EventCreateFormView extends AbstractStatefulView {
 
 
   static parseEventToState(event) {
-    return { ...event };
+    return {
+      ...event,
+      isDisabled: false,
+      isSaving: false,
+    };
   }
 
   static parseStateToEvent(state) {
-    return { ...state };
+    const event = { ...state };
+
+    delete event.isDisabled;
+    delete event.isSaving;
+
+    return event;
   }
 }
 

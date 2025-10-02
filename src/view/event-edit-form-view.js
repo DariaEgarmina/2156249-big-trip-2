@@ -46,8 +46,11 @@ const createAllDestinationsTemplate = (allDestinations) =>
 
 
 const createEventEditFormTemplate = (event, allDestinations) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo } = event;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo, isSaving, isDeleting } = event;
   const { name, description, pictures } = destinationInfo;
+
+  const saveButtonText = isSaving ? 'Saving...' : 'Save';
+  const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
 
   return (
     `<li class="trip-events__item">
@@ -137,8 +140,8 @@ const createEventEditFormTemplate = (event, allDestinations) => {
               <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="1"  max="100000">
             </div>
 
-            <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-            <button class="event__reset-btn" type="reset">Delete</button>
+            <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
+            <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
             <button class="event__rollup-btn" type="button">
               <span class="visually-hidden">Open event</span>
             </button>
@@ -174,7 +177,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   constructor({ event = {}, onRollupButtonClick, onFormSubmit, onDeleteClick, allOffers = [], allDestinations = [] } = {}) {
     super();
     this.#event = event;
-    this._setState(event);
+    this._setState(EventEditFormView.parseEventToState(event));
 
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
@@ -191,7 +194,7 @@ export default class EventEditFormView extends AbstractStatefulView {
   }
 
   reset(event) {
-    this.updateElement(event);
+    this.updateElement(EventEditFormView.parseEventToState(event));
   }
 
   removeElement() {
@@ -246,7 +249,7 @@ export default class EventEditFormView extends AbstractStatefulView {
       return;
     }
 
-    this.#handleFormSubmit(this._state);
+    this.#handleFormSubmit(EventEditFormView.parseStateToEvent(this._state));
   };
 
   #deleteClickHandler = (evt) => {
@@ -371,11 +374,22 @@ export default class EventEditFormView extends AbstractStatefulView {
   }
 
   static parseEventToState(event) {
-    return { ...event };
+    return {
+      ...event,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToEvent(state) {
-    return { ...state };
+    const event = { ...state };
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
+
+    return event;
   }
 }
 
