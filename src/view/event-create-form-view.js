@@ -216,6 +216,14 @@ export default class EventCreateFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+
+    // Валидация, чтобы нельзя было отправить форму с пустым или несуществующим полем destination
+    if (!this._state.destinationInfo.id) {
+      const destinationInput = this.element.querySelector('.event__input--destination');
+      destinationInput.focus();
+      return;
+    }
+
     this.#handleFormSubmit(this._state);
   };
 
