@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import EventCreateFormView from '../view/event-create-form-view.js';
 import { RenderPosition, render, remove } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
@@ -26,6 +25,8 @@ export default class NewEventPresenter {
 
   init(event) {
     this.#event = event;
+    const offers = this.#allOffers();
+    const destinations = this.#allDestinations();
 
     if (this.#newEventComponent !== null) {
       return;
@@ -35,8 +36,8 @@ export default class NewEventPresenter {
       event: this.#event,
       onFormSubmit: this.#handleFormSubmit,
       onDeleteClick: this.#handleDeleteClick,
-      allOffers: this.#allOffers,
-      allDestinations: this.#allDestinations,
+      allOffers: offers,
+      allDestinations: destinations,
     });
 
     render(this.#newEventComponent, this.#tripEventsListComponent, RenderPosition.AFTERBEGIN);
@@ -57,16 +58,30 @@ export default class NewEventPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#newEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#newEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#newEventComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (event) => {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-
-      {
-        pointId: nanoid(),
-        ...event,
-      },
-
+      event,
     );
     this.destroy();
   };

@@ -1,16 +1,43 @@
 import Observable from '../framework/observable.js';
-import { getRandomPoint } from '../mock/points.js';
-import { mockDestinations } from '../mock/destinations.js';
-import { mockOffers } from '../mock/offers.js';
 import { BLANK_EVENT } from '../const.js';
-
-const POINTS_COUNT = 3;
+import { UpdateType } from '../const.js';
 
 export default class PointsModel extends Observable {
-  #points = Array.from({ length: POINTS_COUNT }, getRandomPoint);
-  #destinations = mockDestinations;
-  #offers = mockOffers;
-  #tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+  #pointsApiService = null;
+  #destinationsApiService = null;
+  #offersApiService = null;
+
+  #points = [];
+  #tripEvents = [];
+  #destinations = [];
+  #offers = [];
+
+  constructor({ pointsApiService, destinationsApiService, offersApiService }) {
+    super();
+    this.#pointsApiService = pointsApiService;
+    this.#destinationsApiService = destinationsApiService;
+    this.#offersApiService = offersApiService;
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+
+      const destinations = await this.#destinationsApiService.destinations;
+      this.#destinations = destinations;
+
+      const offers = await this.#offersApiService.offers;
+      this.#offers = offers;
+
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+    } catch (err) {
+      this.#points = [];
+      this.#tripEvents = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  }
 
   get points() {
     return this.#points;
@@ -32,9 +59,9 @@ export default class PointsModel extends Observable {
     return this.convertToTripEvent({ ...BLANK_EVENT });
   }
 
-  getDestinationById(id) {
+  getDestinationByDestination(destination) {
     const allDestinations = this.destinations;
-    return allDestinations.find((item) => item.id === id);
+    return allDestinations.find((item) => item.id === destination);
   }
 
   getOfferByType(type) {
@@ -50,8 +77,8 @@ export default class PointsModel extends Observable {
   convertToTripEvent(point) {
     let destinationInfo;
 
-    if (point.id) {
-      destinationInfo = this.getDestinationById(point.id);
+    if (point.destination) {
+      destinationInfo = this.getDestinationByDestination(point.destination);
     } else {
       destinationInfo = {
         id: '',
@@ -72,45 +99,94 @@ export default class PointsModel extends Observable {
   }
 
   //Метод для обновления точки маршрута - функционал из презентера перенесли в модель
-  updateTripEvent(updateType, update) {
-    const index = this.#tripEvents.findIndex((event) => event.pointId === update.pointId);
+  async updateTripEvent(updateType, update) {
+    const pointsIndex = this.#points.findIndex((point) => point.id === update.id);
 
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting task');
+    if (pointsIndex === -1) {
+      throw new Error('Can\'t update unexisting event');
     }
 
-    this.#tripEvents = [
-      ...this.#tripEvents.slice(0, index),
-      update,
-      ...this.#tripEvents.slice(index + 1),
-    ];
+    try {
+      const response = await this.#pointsApiService.updatePoint(update);
+      const updatedPoint = this.#adaptToClient(response);
 
-    this._notify(updateType, update);
+      // 1. Обновляем основной массив points
+      this.#points = [
+        ...this.#points.slice(0, pointsIndex),
+        updatedPoint,
+        ...this.#points.slice(pointsIndex + 1),
+      ];
+
+      // 2. Пересоздаем массив tripEvents из обновленных points
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+
+      // 3. Уведомляем с обновленным tripEvent
+      const updatedTripEvent = this.convertToTripEvent(updatedPoint);
+      this._notify(updateType, updatedTripEvent);
+    } catch (err) {
+      throw new Error('Can\'t update event');
+    }
   }
 
   // метод для добавления точки маршрута
-  addTripEvent(updateType, update) {
-    this.#tripEvents = [
-      update,
-      ...this.#tripEvents,
-    ];
+  async addTripEvent(updateType, update) {
+    try {
+      const response = await this.#pointsApiService.addPoint(update);
+      const newPoint = this.#adaptToClient(response);
 
-    this._notify(updateType, update);
+      this.#points = [
+        newPoint,
+        ...this.#points,
+      ];
+
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+      const newTripEvent = this.convertToTripEvent(newPoint);
+
+      this._notify(updateType, newTripEvent);
+    } catch (err) {
+      throw new Error('Can\'t add event');
+    }
   }
 
   //метод для удаления точки маршрута
-  deleteTripEvent(updateType, update) {
-    const index = this.#tripEvents.findIndex((task) => task.id === update.id);
+  async deleteTripEvent(updateType, update) {
+    const pointsIndex = this.#points.findIndex((point) => point.id === update.id);
 
-    if (index === -1) {
-      throw new Error('Can\'t delete unexisting task');
+    if (pointsIndex === -1) {
+      throw new Error('Can\'t delete unexisting event');
     }
 
-    this.#tripEvents = [
-      ...this.#tripEvents.slice(0, index),
-      ...this.#tripEvents.slice(index + 1),
-    ];
+    try {
+      await this.#pointsApiService.deletePoint(update);
 
-    this._notify(updateType);
+      this.#points = [
+        ...this.#points.slice(0, pointsIndex),
+        ...this.#points.slice(pointsIndex + 1),
+      ];
+
+      this.#tripEvents = this.#points.map((point) => this.convertToTripEvent(point));
+
+      this._notify(updateType);
+    } catch (err) {
+      throw new Error('Can\'t delete task');
+    }
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {
+      ...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
+      dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_to'],
+      isFavorite: point['is_favorite'],
+      checkedOffers: point['offers'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 }
