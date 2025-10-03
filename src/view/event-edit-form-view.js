@@ -5,13 +5,14 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeEventDate } from '../utils/date.js';
 import { createPhotoListTemplate } from './event-create-form-view.js';
 
-const createOfferTemplate = (offer, checkedOffers) => {
+const createOfferTemplate = (offer, checkedOffers, isDisabled) => {
   const { id, title, price } = offer;
   const isChecked = checkedOffers.some((item) => item.id === id) ? 'checked' : '';
+  const disabledAttr = isDisabled ? 'disabled' : '';
 
   return (
     `<div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id=${id} type="checkbox" name=${id} ${isChecked}>
+      <input class="event__offer-checkbox  visually-hidden" id=${id} type="checkbox" name=${id} ${isChecked} ${disabledAttr}>
       <label class="event__offer-label" for=${id}>
         <span class="event__offer-title">${title}</span>
         &plus;&euro;&nbsp;
@@ -21,7 +22,7 @@ const createOfferTemplate = (offer, checkedOffers) => {
   );
 };
 
-const createOfferListTemplate = (offers, checkedOffers) => {
+const createOfferListTemplate = (offers, checkedOffers, isDisabled) => {
   if (!offers.length) {
     return '';
   }
@@ -31,7 +32,7 @@ const createOfferListTemplate = (offers, checkedOffers) => {
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
-        ${offers.map((offer) => createOfferTemplate(offer, checkedOffers)).join('')}
+        ${offers.map((offer) => createOfferTemplate(offer, checkedOffers, isDisabled)).join('')}
       </div>
     </section>`
   );
@@ -46,22 +47,23 @@ const createAllDestinationsTemplate = (allDestinations) =>
 
 
 const createEventEditFormTemplate = (event, allDestinations) => {
-  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo, isSaving, isDeleting } = event;
+  const { type, basePrice, dateFrom, dateTo, checkedOffers, allOffers, destinationInfo, isSaving, isDeleting, isDisabled } = event;
   const { name, description, pictures } = destinationInfo;
 
   const saveButtonText = isSaving ? 'Saving...' : 'Save';
   const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
+  const formDisabledAttr = isDisabled ? 'disabled' : '';
 
   return (
     `<li class="trip-events__item">
-        <form class="event event--edit" action="#" method="post">
+        <form class="event event--edit" action="#" method="post" ${formDisabledAttr}>
           <header class="event__header">
             <div class="event__type-wrapper">
               <label class="event__type  event__type-btn" for="event-type-toggle-1">
                 <span class="visually-hidden">Choose event type</span>
                 <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
               </label>
-              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+              <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${formDisabledAttr}>
 
               <div class="event__type-list">
                 <fieldset class="event__type-group">
@@ -119,17 +121,17 @@ const createEventEditFormTemplate = (event, allDestinations) => {
               <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
               </label>
-              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+              <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1" ${formDisabledAttr}>
 
               ${createAllDestinationsTemplate(allDestinations)}
             </div>
 
             <div class="event__field-group  event__field-group--time">
               <label class="visually-hidden" for="event-start-time-1">From</label>
-              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeEventDate(dateFrom)}">
+              <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeEventDate(dateFrom)}" ${formDisabledAttr}>
               &mdash;
               <label class="visually-hidden" for="event-end-time-1">To</label>
-              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeEventDate(dateTo)}">
+              <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeEventDate(dateTo)}" ${formDisabledAttr}>
             </div>
 
             <div class="event__field-group  event__field-group--price">
@@ -137,18 +139,18 @@ const createEventEditFormTemplate = (event, allDestinations) => {
                 <span class="visually-hidden">Price</span>
                 &euro;
               </label>
-              <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="1"  max="100000">
+              <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" step="1" min="1"  max="100000" ${formDisabledAttr}>
             </div>
 
-            <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
-            <button class="event__reset-btn" type="reset">${deleteButtonText}</button>
-            <button class="event__rollup-btn" type="button">
+            <button class="event__save-btn  btn  btn--blue" type="submit" ${formDisabledAttr}>${saveButtonText}</button>
+            <button class="event__reset-btn" type="reset" ${formDisabledAttr}>${deleteButtonText}</button>
+            <button class="event__rollup-btn" type="button" ${formDisabledAttr}>
               <span class="visually-hidden">Open event</span>
             </button>
           </header>
           <section class="event__details">
 
-            ${createOfferListTemplate(allOffers, checkedOffers)}
+            ${createOfferListTemplate(allOffers, checkedOffers, isDisabled)}
 
             <section class="event__section  event__section--destination">
               <h3 class="event__section-title  event__section-title--destination">Destination</h3>
