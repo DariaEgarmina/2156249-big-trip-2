@@ -85,19 +85,31 @@ export default class TripEventsPresenter {
   };
 
   //метод-обработчик, который реагирует на действия пользователя, на основе которых мы должны вызвать изменения модели
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenters.get(update.id).setSaving();
-        this.#pointsModel.updateTripEvent(updateType, update);
+        try {
+          this.#pointsModel.updateTripEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
         this.#newEventPresenter.setSaving();
-        this.#pointsModel.addTripEvent(updateType, update);
+        try {
+          this.#pointsModel.addTripEvent(updateType, update);
+        } catch (err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
         this.#eventPresenters.get(update.id).setDeleting();
-        this.#pointsModel.deleteTripEvent(updateType, update);
+        try {
+          this.#pointsModel.deleteTripEvent(updateType, update);
+        } catch (err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
   };
