@@ -1,3 +1,4 @@
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
 import TripEventsListView from '../view/trip-events-list-view.js';
@@ -8,6 +9,11 @@ import { render, RenderPosition, remove } from '../framework/render.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { sortEventsByPrice, sortEventsByTime } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 export default class TripEventsPresenter {
   #tripEventsContainer = null;
   #pointsModel = null;
@@ -24,6 +30,11 @@ export default class TripEventsPresenter {
   #currentSortType = SortType.DAY; //свойство для хранения текущего варианта сортировки
   #filterType = FilterType.EVERYTHING;
   #isLoading = true;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor({ tripEventsContainer, pointsModel, filterModel, onNewEventDestroy }) { //Параметр констурктора - объект. Чтобы передавать весь объект и затем обращаться к его свойствам, мы сразу “распаковываем” эти свойства через { tripEventsContainer, pointsModel }.
     this.#tripEventsContainer = tripEventsContainer;
@@ -86,6 +97,8 @@ export default class TripEventsPresenter {
 
   //метод-обработчик, который реагирует на действия пользователя, на основе которых мы должны вызвать изменения модели
   #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenters.get(update.id).setSaving();
@@ -112,6 +125,8 @@ export default class TripEventsPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   //метод-обработчик, который будет реагировать на изменения модели. Когда модель будет меняться, она будет рассылать всем своим "подписчикам" "уведомления" об изменениях.
